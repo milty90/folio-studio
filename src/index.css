@@ -1,0 +1,55 @@
+@import "./fonts.css";
+@import "tailwindcss";
+
+@theme {
+  --font-inter: "Inter", sans-serif;
+  --font-space: "Space Grotesk", sans-serif;
+  --font-monospace: "IBM Plex Mono", monospace;
+
+  --color-bg: #010101;
+  --color-bg-alt: #1d1e22;
+  --color-panel: #212227;
+  --color-panel-2: #292a30;
+  --color-ink: #f5f2ec;
+  --color-ink-soft: #a6a2a0;
+  --color-ink-faint: #6e6a68;
+  --color-blue: #3d5a8a;
+  --color-blue-soft: #6e8dc4;
+  --color-copper: #c68b57;
+  --color-copper-soft: #ddaa80;
+  --color-green: #3ddc84;
+  --color-header-bg: #0c0b0dd1;
+  --color-line: #f5f2ec1a;
+  --color-line-strong: #f5f2ec33;
+  --maxw: 1160px;
+  --color-overlay:
+    180deg, rgba(15, 16, 19, 0) 20%, rgba(15, 16, 19, 0.55) 48%,
+    rgba(15, 16, 19, 0.97) 78%;
+}
+
+:root {
+  --line: rgba(245, 242, 236, 0.1);
+  --line-strong: #f5f2ec33;
+  --radius: 16px;
+  --maxw: 1100px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-inter);
+  background-color: var(--color-bg-alt);
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-space);
+  font-weight: 700;
+}
+
+html {
+  scroll-behavior: smooth;
+}
