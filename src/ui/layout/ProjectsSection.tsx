@@ -83,7 +83,11 @@ const projects = [
   },
 ];
 
-export function ProjectsSection() {
+interface ProjectsSectionProps {
+  projects: typeof projects;
+}
+
+export function ProjectsSection({ projects }: ProjectsSectionProps) {
   return (
     <section className="flex flex-col pt-10 gap-3">
       <div className="flex flex-row justify-between items-center gap-5">
