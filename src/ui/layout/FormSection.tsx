@@ -1,14 +1,15 @@
-import { InputField } from "../componenets/InputField";
+import { InputField } from "../components/InputField";
 
-import ColorButton from "../componenets/ColorButton";
-import { useState } from "react";
+import ColorButton from "../components/ColorButton";
+
 interface FormSectionProps {
   onSave: () => void;
   onCancel: () => void;
   onChange: (field: string, value: string) => void;
+
   title: string;
   description: string;
-  mainImage: any;
+  mainImage: File | null;
   tags: string;
   githubRepo: string;
   liveDemo: string;
@@ -18,6 +19,7 @@ export function FormSection({
   onSave,
   onCancel,
   onChange,
+
   title,
   description,
   mainImage,
@@ -25,15 +27,11 @@ export function FormSection({
   githubRepo,
   liveDemo,
 }: FormSectionProps) {
-  const [preview, setPreview] = useState(mainImage?.src || "");
-
-  function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0];
-
-    const objectUrl = file ? URL.createObjectURL(file) : "";
-
-    setPreview(objectUrl);
-  }
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files.length > 0) {
+      const file = event.target.files[0];
+    }
+  };
 
   return (
     <section className="flex flex-col pt-10 gap-3">
@@ -63,12 +61,10 @@ export function FormSection({
           <div className="flex flex-row gap-1">
             <InputField
               label="Hauptbild"
-              value={preview || mainImage?.src || ""}
+              value={mainImage ? mainImage.name : ""}
+              onChange={() => {}}
               hint="Hauptbild des Projekts"
               type="file"
-              onChange={(value) => {
-                onChange("mainImage", value);
-              }}
             />
           </div>
           <InputField

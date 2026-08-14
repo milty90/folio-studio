@@ -1,4 +1,4 @@
-import ColorButton from "../componenets/ColorButton";
+import ColorButton from "../components/ColorButton";
 
 export default function Header() {
   return (
