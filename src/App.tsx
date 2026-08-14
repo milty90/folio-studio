@@ -1,7 +1,9 @@
 import { FormSection } from "./ui/layout/FormSection";
 import { ProjectsSection } from "./ui/layout/ProjectsSection";
 import Header from "./ui/layout/Header";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { fetchProjectData } from "./api/fetchProjectData";
+import type { Database } from "../types/database.types";
 
 function App() {
   const [title, setTitle] = useState("");
@@ -10,13 +12,20 @@ function App() {
   const [githubRepo, setGithubRepo] = useState("");
   const [liveDemo, setLiveDemo] = useState("");
 
-  const [array, setArray] = useState<Array<{
-    title: string;
-    description: string;
-    tags: string[];
-    githubRepo: string;
-    liveDemo: string;
-  }> | null>(null);
+  const [array, setArray] = useState<
+    Database["public"]["Tables"]["portfolio-projects"]["Row"][] | null
+  >(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const data = await fetchProjectData();
+      if (data) {
+        setArray(data);
+      }
+    };
+
+    fetchData();
+  }, []);
 
   const handleSave = () => {
     const newProject = {
@@ -26,8 +35,6 @@ function App() {
       githubRepo,
       liveDemo,
     };
-
-    setArray((prevArray) => [...(prevArray || []), newProject]);
 
     localStorage.setItem(
       "projects",
@@ -82,10 +89,12 @@ function App() {
             onChange={handleChange}
             title={title}
             description={description}
+            mainImage={null}
             tags={tags}
             githubRepo={githubRepo}
             liveDemo={liveDemo}
           />
+
           <ProjectsSection projects={array || []} />
         </div>
       </main>
