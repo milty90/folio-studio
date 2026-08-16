@@ -1,11 +1,12 @@
 import { ProjectCard } from "../components/ProjectCard";
 import type { Database } from "../../../types/database.types";
+import { memo } from "react";
 
 interface ProjectsSectionProps {
   projects: Database["public"]["Tables"]["portfolio-projects"]["Row"][];
 }
 
-export function ProjectsSection({ projects }: ProjectsSectionProps) {
+function ProjectsSection({ projects }: ProjectsSectionProps) {
   return (
     <section className="flex flex-col pt-10 gap-3">
       <div className="flex flex-row justify-between items-center gap-5">
@@ -36,3 +37,4 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
     </section>
   );
 }
+export default memo(ProjectsSection);

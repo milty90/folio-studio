@@ -1,15 +1,16 @@
 import { InputField } from "../components/InputField";
 
 import ColorButton from "../components/ColorButton";
+import FileInput from "../components/FileInput";
 
 interface FormSectionProps {
   onSave: () => void;
   onCancel: () => void;
   onChange: (field: string, value: string) => void;
-
+  isLoggedIn: Boolean | null;
   title: string;
   description: string;
-  mainImage: File | null;
+
   tags: string;
   githubRepo: string;
   liveDemo: string;
@@ -19,20 +20,14 @@ export function FormSection({
   onSave,
   onCancel,
   onChange,
-
+  isLoggedIn,
   title,
   description,
-  mainImage,
+
   tags,
   githubRepo,
   liveDemo,
 }: FormSectionProps) {
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files.length > 0) {
-      const file = event.target.files[0];
-    }
-  };
-
   return (
     <section className="flex flex-col pt-10 gap-3">
       <div className="flex flex-row justify-between items-center gap-5">
@@ -44,12 +39,14 @@ export function FormSection({
       <div className="bg-bg-alt border border-line rounded-2xl p-6 pb-5.5 justify-between items-center gap-5">
         <div className="flex flex-col mb-5 gap-3">
           <InputField
+            isActive={true}
             label="Titel"
             value={title}
             hint="z.B Portfolio website"
             onChange={(value) => onChange("title", value)}
           />
           <InputField
+            isActive={true}
             label="Beschreibung"
             value={description}
             type="textarea"
@@ -58,28 +55,28 @@ export function FormSection({
           />
         </div>
         <div className="grid grid-cols-2 gap-x-8 gap-y-3">
-          <div className="flex flex-row gap-1">
-            <InputField
-              label="Hauptbild"
-              value={mainImage ? mainImage.name : ""}
-              onChange={() => {}}
-              hint="Hauptbild des Projekts"
-              type="file"
-            />
-          </div>
+          <FileInput
+            isActive={true}
+            label="Hauptbild Hochladen"
+            text="Bild auswählen"
+            onClick={() => {}}
+          />
           <InputField
+            isActive={true}
             label="Tags"
             value={tags}
             hint="React, TailwindCSS, TypeScript"
             onChange={(value) => onChange("tags", value)}
           />
           <InputField
+            isActive={true}
             label="GitHub Repo"
             value={githubRepo}
             hint="Link zum GitHub Repository"
             onChange={(value) => onChange("githubRepo", value)}
           />
           <InputField
+            isActive={true}
             label="Live Demo"
             value={liveDemo}
             hint="Link zur Live Demo"
@@ -88,11 +85,19 @@ export function FormSection({
         </div>
         <div className="flex flex-row pt-3 pr-1 justify-end gap-3">
           <ColorButton
+            isActive={true}
             color="transparent"
             text="Entfernen"
             onClick={onCancel}
           />
-          <ColorButton color="blue" text="Speichern" onClick={onSave} />
+
+          <ColorButton
+            border={`border ${isLoggedIn ? "border-transparent" : "border-line"}`}
+            isActive={isLoggedIn ? true : false}
+            color={isLoggedIn ? "blue" : "transparent"}
+            text="Speichern"
+            onClick={onSave}
+          />
         </div>
       </div>
     </section>

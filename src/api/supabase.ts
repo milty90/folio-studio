@@ -6,4 +6,4 @@ const supabase = createClient<Database>(
   import.meta.env.VITE_SUPABASE_KEY,
 );
 
-export default supabase;
+export { supabase };
