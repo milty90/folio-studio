@@ -7,10 +7,11 @@ interface FormSectionProps {
   onSave: () => void;
   onCancel: () => void;
   onChange: (field: string, value: string) => void;
+  onFileChange: (file: File | null) => void;
+
   isLoggedIn: Boolean | null;
   title: string;
   description: string;
-
   tags: string;
   githubRepo: string;
   liveDemo: string;
@@ -20,10 +21,10 @@ export function FormSection({
   onSave,
   onCancel,
   onChange,
+  onFileChange,
   isLoggedIn,
   title,
   description,
-
   tags,
   githubRepo,
   liveDemo,
@@ -59,7 +60,7 @@ export function FormSection({
             isActive={true}
             label="Hauptbild Hochladen"
             text="Bild auswählen"
-            onClick={() => {}}
+            onFileSelect={onFileChange}
           />
           <InputField
             isActive={true}

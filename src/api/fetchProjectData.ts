@@ -21,3 +21,14 @@ export async function addProjectToSupabase(projectData: any) {
   }
   return response.data;
 }
+
+export async function uploadFile(file: File) {
+  const { data, error } = await supabase.storage
+    .from("images")
+    .upload(file.name, file, { upsert: true });
+  if (error) {
+    console.error("Error uploading file", error);
+  } else {
+    console.log("File uploaded successfully: ", data);
+  }
+}

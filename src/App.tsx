@@ -4,6 +4,7 @@ import Header from "./ui/layout/Header";
 import { useEffect, useState } from "react";
 import { getSession, signOut } from "./api/supabaseClient";
 import {
+  uploadFile,
   addProjectToSupabase,
   fetchProjectDataFromSupabase,
 } from "./api/fetchProjectData";
@@ -32,8 +33,9 @@ function App() {
   const [tags, setTags] = useState("");
   const [githubRepo, setGithubRepo] = useState("");
   const [liveDemo, setLiveDemo] = useState("");
+  const [file, setFile] = useState<File | null>(null);
   const [password, setPassword] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState<Boolean | null>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
 
   const [projects, setProjects] = useState<
     Database["public"]["Tables"]["portfolio-projects"]["Row"][]
@@ -107,7 +109,11 @@ function App() {
       JSON.stringify([...(projects || []), newProject]),
     );
 
-    newProject && addProjectToSupabase(newProject);
+    addProjectToSupabase(newProject);
+
+    if (file) {
+      uploadFile(file);
+    }
 
     setTitle("");
     setDescription("");
@@ -172,6 +178,7 @@ function App() {
             onSave={handleSave}
             onCancel={handleCancel}
             onChange={handleChange}
+            onFileChange={setFile}
             isLoggedIn={isLoggedIn}
             title={title}
             description={description}

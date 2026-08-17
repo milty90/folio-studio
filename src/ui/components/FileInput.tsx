@@ -5,7 +5,8 @@ interface FileInputProps {
   text?: string;
   border?: string;
   height?: string;
-  onClick?: () => void;
+  onFileSelect?: (file: File | null) => void;
+
   isActive?: boolean;
   label?: string;
 }
@@ -17,10 +18,18 @@ function FileInput({
   height,
 
   label,
+  onFileSelect,
   isActive = true,
 }: FileInputProps) {
-  const [fileName, setFileName] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState("");
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] ?? null;
+
+    onFileSelect?.(file);
+    setFileName(file?.name ?? "");
+  };
 
   return (
     <div className="flex flex-col mt-0.5 gap-1">
@@ -32,9 +41,7 @@ function FileInput({
           type="file"
           ref={inputRef}
           className="hidden"
-          onChange={(e) =>
-            setFileName(e.target.files ? e.target.files[0].name : "")
-          }
+          onChange={handleChange}
         />
         <span className="text-ink/90 text-[0.82rem] font-monospace">
           {fileName || "Keine ausgewählt"}
