@@ -91,9 +91,8 @@ function App() {
     setIsLoggedIn(false);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     const newProject = {
-      id: projects.length + 1,
       title: title,
       descr: description,
       tags: tags.split(",").map((tag) => tag.trim()),
@@ -109,10 +108,11 @@ function App() {
       JSON.stringify([...(projects || []), newProject]),
     );
 
-    addProjectToSupabase(newProject);
+    const { data: insertedProject } = await addProjectToSupabase(newProject);
 
-    if (file) {
-      uploadFile(file);
+    if (file && insertedProject?.[0]) {
+      const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+      await uploadFile(file, fileName);
     }
 
     setTitle("");

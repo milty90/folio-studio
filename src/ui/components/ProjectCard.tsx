@@ -37,13 +37,20 @@ export function ProjectCard({
           <a href={liveDemoUrl}>Link ⤍ </a>
         </div>
       </div>
-      <div className="flex flex-col ">
+      <div className="flex flex-col gap-2 items-end">
+        <ColorButton
+          border="border border-line"
+          color="transparent"
+          text="Bearbeiten"
+          onClick={() => {}}
+        />
         <ColorButton
           border="border border-line"
           color="transparent"
           text="Löschen"
           onClick={() => {}}
         />
+         
       </div>
     </div>
   );
