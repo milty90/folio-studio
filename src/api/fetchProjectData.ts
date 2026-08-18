@@ -1,3 +1,4 @@
+import type { Database } from "../../types/database.types";
 import { supabase } from "./supabase";
 
 export async function fetchProjectDataFromSupabase() {
@@ -10,7 +11,7 @@ export async function fetchProjectDataFromSupabase() {
   return response.data;
 }
 
-export async function addProjectToSupabase(projectData: any) {
+export async function addProjectToSupabase(projectData: Database["public"]["Tables"]["portfolio-projects"]["Insert"]) {
   const response = await supabase
     .from("portfolio-projects")
     .insert([projectData])
@@ -25,18 +26,43 @@ export async function addProjectToSupabase(projectData: any) {
   return response;
 }
 
-export async function uploadFile(file: File, fileName?: string) {
-  const targetName = fileName ?? `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
-
-  const { data, error } = await supabase.storage
+export async function uploadFile(file: File, fileName: string) {
+  const { data: uploadData, error: uploadError } = await supabase.storage
     .from("images")
-    .upload(targetName, file, { upsert: false });
+    .upload(fileName, file, {
+      upsert: false,
+    });
 
-  if (error) {
-    console.error("Error uploading file", error);
-  } else {
-    console.log("File uploaded successfully: ", data);
+  if (uploadError || !uploadData.path) {
+    console.error("Error uploading file:", uploadError);
+
+    return {
+      imagePath: "",
+      imageUrl: "",
+      error: uploadError,
+    };
+  } 
+
+  const { data: signedUrlData, error: signedUrlError } =
+    await supabase.storage
+      .from("images")
+      .createSignedUrl(uploadData.path, 3600);
+
+
+  if (signedUrlError || !signedUrlData) {
+    console.error("Error creating signed URL:", signedUrlError);
+
+    return {
+      imagePath: uploadData.path,
+      imageUrl: "",
+      error: signedUrlError,
+    };
   }
 
-  return { data, error };
+  return {
+    imagePath: uploadData.path,
+    imageUrl: signedUrlData.signedUrl,
+    error: null,
+  };
 }
+

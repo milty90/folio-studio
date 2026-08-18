@@ -91,37 +91,68 @@ function App() {
     setIsLoggedIn(false);
   };
 
-  const handleSave = async () => {
-    const newProject = {
-      title: title,
-      descr: description,
-      tags: tags.split(",").map((tag) => tag.trim()),
-      img: "https://placehold.co/600x400/EEE/31343D?text=No+Image",
-      code: githubRepo,
-      live: liveDemo,
-      created_at: new Date().toISOString(),
-      desc: description,
-    };
+ const handleSave = async () => {
+  let imageUrl: string = "";
+  
 
-    localStorage.setItem(
-      "projects",
-      JSON.stringify([...(projects || []), newProject]),
-    );
+  if (file) {
+    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
 
-    const { data: insertedProject } = await addProjectToSupabase(newProject);
+    const {
+      error: uploadError,
+    
+      imageUrl: uploadedImageUrl,
+    } = await uploadFile(file, fileName);
 
-    if (file && insertedProject?.[0]) {
-      const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
-      await uploadFile(file, fileName);
+    if (uploadError) {
+      console.error("File upload error:", uploadError);
+      alert("A fájl feltöltése sikertelen.");
+      return;
     }
 
-    setTitle("");
-    setDescription("");
-    setTags("");
-    setGithubRepo("");
-    setLiveDemo("");
+    imageUrl = uploadedImageUrl;
+    
+  }
+
+
+  const newProject = {
+    title,
+    descr: description,
+   
+    tags: tags.split(",").map((tag) => tag.trim().replace(/^"|"$/g, "")),
+    img: imageUrl || "",
+    code: githubRepo,
+    live: liveDemo,
+    created_at: new Date().toISOString(),
+    desc: description,
   };
 
+  const { data: insertedProject, error: projectError } =
+    await addProjectToSupabase(newProject);
+
+  if (projectError || !insertedProject) {
+    console.error("Project insert error:", projectError);
+    alert("The project could not be saved.");
+    return;
+  }
+
+  const projectsWithSignedUrl = insertedProject.map((project) => ({
+    ...project,
+    img: imageUrl || project.img,
+  }));
+
+  setProjects((currentProjects) => [
+    ...currentProjects,
+    ...projectsWithSignedUrl,
+  ]);
+
+  setTitle("");
+  setDescription("");
+  setTags("");
+  setGithubRepo("");
+  setLiveDemo("");
+  setFile(null);
+};
   const handleCancel = () => {
     setTitle("");
     setDescription("");
@@ -158,7 +189,7 @@ function App() {
   if (isLoggedIn === null) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-bg/30 text-ink">
-        <span className="sr-only">Session betöltése...</span>
+        <span className="sr-only">Session loading...</span>
       </main>
     );
   }

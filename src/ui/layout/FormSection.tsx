@@ -9,7 +9,7 @@ interface FormSectionProps {
   onChange: (field: string, value: string) => void;
   onFileChange: (file: File | null) => void;
 
-  isLoggedIn: Boolean | null;
+  isLoggedIn: boolean | null;
   title: string;
   description: string;
   tags: string;
