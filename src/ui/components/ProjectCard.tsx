@@ -19,7 +19,7 @@ export function ProjectCard({
   liveDemoUrl,
 }: ProjectCardProps) {
   return (
-    <div className="flex flex-row w-full bg-bg-alt px-3 py-2 justify-between items-start gap-5">
+    <div draggable={true} className="flex flex-row w-full bg-bg-alt px-3 py-2 justify-between items-start gap-5 ">
       <p className="tracking-tight   font-light text-ink-soft text-[0.9rem] font-inter">
         {position.toString().padStart(2, "0")}
       </p>
