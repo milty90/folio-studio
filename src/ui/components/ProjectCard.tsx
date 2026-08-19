@@ -49,9 +49,8 @@ export function ProjectCard({
           color="transparent"
           text="Löschen"
           onClick={() => {}}
-        />
-         
-      </div>
+        /></div>
+        
     </div>
   );
 }

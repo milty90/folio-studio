@@ -4,6 +4,7 @@ interface InputFieldProps {
   hint?: string;
   value: string;
   isActive?: boolean;
+
   onChange: (value: string) => void;
 }
 export function InputField({
@@ -12,6 +13,7 @@ export function InputField({
   hint,
   value,
   isActive,
+
   onChange,
 }: InputFieldProps) {
   return (
@@ -23,6 +25,7 @@ export function InputField({
         disabled={!isActive}
         placeholder={hint}
         type={type}
+       
         className={`text-ink pl-3 font-normal ${type === "textarea" ? "h-20" : "h-10"} border bg-bg/30 border-line placeholder:text-[0.82rem] placeholder:text-ink-faint placeholder:pl-1 focus:border-blue focus:outline focus:outline-blue rounded-md px-2 py-1 text-sm`}
         value={value}
         onChange={(e) => onChange(e.target.value)}

@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useRef, useImperativeHandle, forwardRef } from "react";
 
 interface FileInputProps {
   color?: "blue" | "transparent";
@@ -6,29 +6,42 @@ interface FileInputProps {
   border?: string;
   height?: string;
   onFileSelect?: (file: File | null) => void;
-
+  fileName?: string;
   isActive?: boolean;
   label?: string;
+  ref?: React.RefObject<{ reset: () => void }>;
 }
 
-function FileInput({
+export interface FileInputHandler {
+  reset: () => void;
+}
+
+const FileInput = forwardRef<FileInputHandler, FileInputProps>(({
   color = "blue",
   text = "file auswählen",
   border = "",
   height,
+  fileName,
 
   label,
   onFileSelect,
   isActive = true,
-}: FileInputProps) {
-  const inputRef = useRef<HTMLInputElement>(null);
-  const [fileName, setFileName] = useState("");
+} , ref) => {
 
+  const inputRef = useRef<HTMLInputElement>(null);
+
+ useImperativeHandle(ref, () => ({
+      reset: () => {
+        if (inputRef.current) {
+          inputRef.current.value = "";
+        }
+      },
+    }));
+    
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
-
     onFileSelect?.(file);
-    setFileName(file?.name ?? "");
+    
   };
 
   return (
@@ -60,5 +73,7 @@ function FileInput({
       </div>
     </div>
   );
-}
+});
+
+FileInput.displayName = "FileInput";
 export default FileInput;

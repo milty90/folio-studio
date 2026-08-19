@@ -1,7 +1,9 @@
 import { FormSection } from "./ui/layout/FormSection";
 import ProjectsSection from "./ui/layout/ProjectsSection";
 import Header from "./ui/layout/Header";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import type { FileInputHandler } from "./ui/components/FileInput";
+
 import { getSession, signOut } from "./api/supabaseClient";
 import {
   uploadFile,
@@ -36,6 +38,9 @@ function App() {
   const [file, setFile] = useState<File | null>(null);
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
+
+  const fileInputRef = useRef<FileInputHandler>(null);
+const [fileTitle, setFileTitle] = useState<string>();
 
   const [projects, setProjects] = useState<
     Database["public"]["Tables"]["portfolio-projects"]["Row"][]
@@ -95,31 +100,29 @@ function App() {
   let imageUrl: string = "";
   
 
-  if (file) {
-    const fileName = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
+ if (file) {
+      const fileN = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
 
-    const {
-      error: uploadError,
-    
-      imageUrl: uploadedImageUrl,
-    } = await uploadFile(file, fileName);
+      const { error: uploadError, imageUrl: uploadedImageUrl } =
+        await uploadFile(file, fileN);
 
-    if (uploadError) {
-      console.error("File upload error:", uploadError);
-      alert("A fájl feltöltése sikertelen.");
-      return;
+      if (uploadError) {
+        console.error("File upload error:", uploadError);
+        alert("File upload failed.");
+        return;
+      }
+
+      imageUrl = uploadedImageUrl;
     }
-
-    imageUrl = uploadedImageUrl;
-    
-  }
 
 
   const newProject = {
     title,
     descr: description,
-   
-    tags: tags.split(",").map((tag) => tag.trim().replace(/^"|"$/g, "")),
+    tags: tags
+      .split(/[,\s]+/)
+      .map((tag) => tag.trim().replace(/^"|"$/g, ""))
+      .filter((tag) => tag.length > 0),
     img: imageUrl || "",
     code: githubRepo,
     live: liveDemo,
@@ -152,6 +155,8 @@ function App() {
   setGithubRepo("");
   setLiveDemo("");
   setFile(null);
+  setFileTitle("");
+  fileInputRef.current?.reset();
 };
   const handleCancel = () => {
     setTitle("");
@@ -159,6 +164,8 @@ function App() {
     setTags("");
     setGithubRepo("");
     setLiveDemo("");
+    setFileTitle("");
+    fileInputRef.current?.reset();
   };
 
   const handleChange = (field: string, value: string) => {
@@ -186,6 +193,11 @@ function App() {
   const handlePasswordChange = (value: string) => {
     setPassword(value);
   };
+
+  const handleFileSelect = (selectedFile: File | null) => {
+    setFile(selectedFile);
+    setFileTitle(selectedFile?.name ?? "");
+  };
   if (isLoggedIn === null) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-bg/30 text-ink">
@@ -206,10 +218,13 @@ function App() {
       <main className="flex flex-col items-center justify-start min-h-screen bg-bg/30 text-ink">
         <div className="flex flex-col gap-5 w-full max-w-(--maxw) px-7 pb-10">
           <FormSection
+            position={projects.length + 1 + ""}
+            ref={fileInputRef}
+            fileName={fileTitle || ""} 
             onSave={handleSave}
             onCancel={handleCancel}
             onChange={handleChange}
-            onFileChange={setFile}
+            onFileChange={handleFileSelect}
             isLoggedIn={isLoggedIn}
             title={title}
             description={description}

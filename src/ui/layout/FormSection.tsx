@@ -1,13 +1,16 @@
 import { InputField } from "../components/InputField";
 
 import ColorButton from "../components/ColorButton";
-import FileInput from "../components/FileInput";
+import FileInput, { type FileInputHandler } from "../components/FileInput";
 
 interface FormSectionProps {
   onSave: () => void;
   onCancel: () => void;
   onChange: (field: string, value: string) => void;
+  position: string;
   onFileChange: (file: File | null) => void;
+  fileName?: string;
+  ref?: React.Ref<FileInputHandler>;
 
   isLoggedIn: boolean | null;
   title: string;
@@ -22,6 +25,8 @@ export function FormSection({
   onCancel,
   onChange,
   onFileChange,
+  fileName,
+  ref,
   isLoggedIn,
   title,
   description,
@@ -39,13 +44,17 @@ export function FormSection({
       </div>
       <div className="bg-bg-alt border border-line rounded-2xl p-6 pb-5.5 justify-between items-center gap-5">
         <div className="flex flex-col mb-5 gap-3">
+          
           <InputField
             isActive={true}
             label="Titel"
             value={title}
+       
             hint="z.B Portfolio website"
             onChange={(value) => onChange("title", value)}
           />
+          
+        
           <InputField
             isActive={true}
             label="Beschreibung"
@@ -57,6 +66,8 @@ export function FormSection({
         </div>
         <div className="grid grid-cols-2 gap-x-8 gap-y-3">
           <FileInput
+          ref={ref}
+          fileName={fileName}
             isActive={true}
             label="Hauptbild Hochladen"
             text="Bild auswählen"
@@ -66,7 +77,7 @@ export function FormSection({
             isActive={true}
             label="Tags"
             value={tags}
-            hint="React, TailwindCSS, TypeScript"
+            hint="React TailwindCSS TypeScript"
             onChange={(value) => onChange("tags", value)}
           />
           <InputField
