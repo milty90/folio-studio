@@ -22,6 +22,7 @@ function ProjectsSection({ projects }: ProjectsSectionProps) {
         <div className="flex flex-col divide-y divide-line/60 bp-6 justify-between items-center gap-5">
           {projects.map((project, index) => (
             <ProjectCard
+             isDragging={false}
               key={project.id}
               position={index + 1}
               title={project.title || ""}

@@ -9,6 +9,7 @@ interface ProjectCardProps {
   imageUrl: string;
   githubUrl: string;
   liveDemoUrl: string;
+  isDragging: boolean;
 }
 
 export function ProjectCard({
@@ -17,9 +18,10 @@ export function ProjectCard({
   tags,
   githubUrl,
   liveDemoUrl,
+  isDragging ,
 }: ProjectCardProps) {
   return (
-    <div draggable={true} className="flex flex-row w-full bg-bg-alt px-3 py-2 justify-between items-start gap-5 ">
+    <div draggable={true} className={`flex flex-row w-full bg-bg-alt px-3 py-2 justify-between items-start gap-5 ${isDragging ? "opacity-50 border  border-line" : ""}`}>
       <p className="tracking-tight   font-light text-ink-soft text-[0.9rem] font-inter">
         {position.toString().padStart(2, "0")}
       </p>
