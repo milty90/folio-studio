@@ -48,7 +48,7 @@ const FileInput = forwardRef<FileInputHandler, FileInputProps>(({
           className="hidden"
           onChange={handleChange}
         />
-        <span className={`${error ? "text-red-800" : "text-ink/90"} text-[0.82rem] font-monospace`}>
+        <span className={`${error ? "text-red-800/90" : "text-ink/90"} text-[0.82rem] font-monospace`}>
           {fileName || "Keine ausgewählt"}
         </span>
         <button
