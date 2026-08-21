@@ -10,6 +10,7 @@ interface FileInputProps {
   isActive?: boolean;
   label?: string;
   ref?: React.RefObject<{ reset: () => void }>;
+  inputRef?: React.RefObject<HTMLInputElement>;
 }
 
 export interface FileInputHandler {
@@ -22,13 +23,12 @@ const FileInput = forwardRef<FileInputHandler, FileInputProps>(({
   border = "",
   height,
   fileName,
-
   label,
   onFileSelect,
   isActive = true,
 } , ref) => {
 
-  const inputRef = useRef<HTMLInputElement>(null);
+   const inputRef = useRef<HTMLInputElement>(null);
 
  useImperativeHandle(ref, () => ({
       reset: () => {

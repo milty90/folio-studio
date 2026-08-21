@@ -11,13 +11,20 @@ interface FormSectionProps {
   onFileChange: (file: File | null) => void;
   fileName?: string;
   ref?: React.Ref<FileInputHandler>;
-
   isLoggedIn: boolean | null;
   title: string;
+  titleError?: boolean;
   description: string;
+  descriptionError?: boolean;
   tags: string;
+  tagsError?: boolean;
   githubRepo: string;
+  githubRepoError?: boolean;
   liveDemo: string;
+  liveDemoError?: boolean;
+  fileError?: boolean;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
+
 }
 
 export function FormSection({
@@ -27,12 +34,18 @@ export function FormSection({
   onFileChange,
   fileName,
   ref,
-  isLoggedIn,
+ isLoggedIn,
   title,
   description,
   tags,
   githubRepo,
   liveDemo,
+  inputRef,
+  titleError,
+  descriptionError,
+  tagsError,
+  githubRepoError,
+  liveDemoError,
 }: FormSectionProps) {
   return (
     <section className="flex flex-col pt-10 gap-3">
@@ -46,9 +59,11 @@ export function FormSection({
         <div className="flex flex-col mb-5 gap-3">
           
           <InputField
+            inputRef={inputRef}
             isActive={true}
             label="Titel"
             value={title}
+            error={titleError}
        
             hint="z.B Portfolio website"
             onChange={(value) => onChange("title", value)}
@@ -56,8 +71,10 @@ export function FormSection({
           
         
           <InputField
+         
             isActive={true}
             label="Beschreibung"
+            error={descriptionError}
             value={description}
             type="textarea"
             hint="Kurze Beschreibung des Projekts"
@@ -68,6 +85,7 @@ export function FormSection({
           <FileInput
           ref={ref}
           fileName={fileName}
+          
             isActive={true}
             label="Hauptbild Hochladen"
             text="Bild auswählen"
@@ -76,6 +94,7 @@ export function FormSection({
           <InputField
             isActive={true}
             label="Tags"
+            error={tagsError}
             value={tags}
             hint="React TailwindCSS TypeScript"
             onChange={(value) => onChange("tags", value)}
@@ -83,6 +102,7 @@ export function FormSection({
           <InputField
             isActive={true}
             label="GitHub Repo"
+            error={githubRepoError}
             value={githubRepo}
             hint="Link zum GitHub Repository"
             onChange={(value) => onChange("githubRepo", value)}
@@ -90,6 +110,7 @@ export function FormSection({
           <InputField
             isActive={true}
             label="Live Demo"
+            error={liveDemoError}
             value={liveDemo}
             hint="Link zur Live Demo"
             onChange={(value) => onChange("liveDemo", value)}
