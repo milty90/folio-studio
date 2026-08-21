@@ -1,4 +1,4 @@
-import { useRef, useImperativeHandle, forwardRef } from "react";
+import { forwardRef } from "react";
 
 interface FileInputProps {
   color?: "blue" | "transparent";
@@ -9,8 +9,9 @@ interface FileInputProps {
   fileName?: string;
   isActive?: boolean;
   label?: string;
+  error?: boolean;
   ref?: React.RefObject<{ reset: () => void }>;
-  inputRef?: React.RefObject<HTMLInputElement>;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
 }
 
 export interface FileInputHandler {
@@ -24,23 +25,26 @@ const FileInput = forwardRef<FileInputHandler, FileInputProps>(({
   height,
   fileName,
   label,
+  error,
   onFileSelect,
   isActive = true,
-} , ref) => {
+  inputRef,
+} ) => {
 
-   const inputRef = useRef<HTMLInputElement>(null);
+   // const inputRef = useRef<HTMLInputElement>(null);
 
- useImperativeHandle(ref, () => ({
+/*  useImperativeHandle(ref, () => ({
       reset: () => {
         if (inputRef.current) {
           inputRef.current.value = "";
         }
       },
-    }));
+    })); */
     
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     onFileSelect?.(file);
+
     
   };
 
@@ -56,15 +60,15 @@ const FileInput = forwardRef<FileInputHandler, FileInputProps>(({
           className="hidden"
           onChange={handleChange}
         />
-        <span className="text-ink/90 text-[0.82rem] font-monospace">
+        <span className={`${error ? "text-red-850" : "text-ink/90"} text-[0.82rem] font-monospace`}>
           {fileName || "Keine ausgewählt"}
         </span>
         <button
           type="button"
           className={`bg-${color} text-ink/80 px-5 ${height ?? "py-2"} ${border} font-semibold text-[0.85rem] rounded-full whitespace-nowrap ${isActive ? "" : "opacity-70 cursor-not-allowed hover:bg-transparent hover:text-ink/80"} hover:bg-ink hover:text-bg transition-color duration-300`}
           onClick={() => {
-            if (isActive && inputRef.current) {
-              inputRef.current.click();
+            if (isActive) {
+              inputRef?.current?.click();
             }
           }}
         >

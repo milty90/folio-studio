@@ -41,7 +41,7 @@ function App() {
   const [liveDemo, setLiveDemo] = useState("");
   const [liveDemoError, setLiveDemoError] = useState(false);
   const [file, setFile] = useState<File | null>(null);
-  //const [fileError, setFileError] = useState(false);
+  const [fileError, setFileError] = useState(false);
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -119,6 +119,12 @@ function App() {
     alert("Please fill in the required fields: Title and Description.");
     return;
   }
+
+  if (!file) {
+    setFileError(true);
+    alert("Please select a file to upload.");
+    return;
+  }
   
 
  if (file) {
@@ -188,13 +194,22 @@ function App() {
 };
   const handleCancel = () => {
     setTitle("");
+    setTitleError(false);
     setDescription("");
+    setDescriptionError(false);
     setTags("");
+    setTagsError(false);
     setGithubRepo("");
+    setGithubRepoError(false);
     setLiveDemo("");
+    setLiveDemoError(false);
+    setFile(null);
+    setFileError(false);
     setFileTitle("");
     fileInputRef.current?.reset();
   };
+
+   
 
   const handleChange = (field: string, value: string) => {
     switch (field) {
@@ -257,7 +272,7 @@ function App() {
             tagsError={tagsError}
             githubRepoError={githubRepoError}
             liveDemoError={liveDemoError}
-            //fileError={fileError}
+            fileError={fileError}
             position={projects.length + 1 + ""}
             ref={fileInputRef}
             fileName={fileTitle || ""} 

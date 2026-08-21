@@ -45,6 +45,7 @@ export function FormSection({
   descriptionError,
   tagsError,
   githubRepoError,
+  fileError,
   liveDemoError,
 }: FormSectionProps) {
   return (
@@ -71,8 +72,7 @@ export function FormSection({
           
         
           <InputField
-         
-            isActive={true}
+           isActive={true}
             label="Beschreibung"
             error={descriptionError}
             value={description}
@@ -83,13 +83,14 @@ export function FormSection({
         </div>
         <div className="grid grid-cols-2 gap-x-8 gap-y-3">
           <FileInput
+          inputRef={inputRef}
           ref={ref}
           fileName={fileName}
-          
-            isActive={true}
-            label="Hauptbild Hochladen"
-            text="Bild auswählen"
-            onFileSelect={onFileChange}
+          error={fileError}
+          isActive={true}
+          label="Hauptbild Hochladen"
+          text="Bild auswählen"
+          onFileSelect={onFileChange}
           />
           <InputField
             isActive={true}
