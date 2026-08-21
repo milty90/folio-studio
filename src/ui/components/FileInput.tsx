@@ -31,21 +31,9 @@ const FileInput = forwardRef<FileInputHandler, FileInputProps>(({
   inputRef,
 } ) => {
 
-   // const inputRef = useRef<HTMLInputElement>(null);
-
-/*  useImperativeHandle(ref, () => ({
-      reset: () => {
-        if (inputRef.current) {
-          inputRef.current.value = "";
-        }
-      },
-    })); */
-    
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] ?? null;
     onFileSelect?.(file);
-
-    
   };
 
   return (
@@ -60,7 +48,7 @@ const FileInput = forwardRef<FileInputHandler, FileInputProps>(({
           className="hidden"
           onChange={handleChange}
         />
-        <span className={`${error ? "text-red-850" : "text-ink/90"} text-[0.82rem] font-monospace`}>
+        <span className={`${error ? "text-red-800" : "text-ink/90"} text-[0.82rem] font-monospace`}>
           {fileName || "Keine ausgewählt"}
         </span>
         <button

@@ -110,22 +110,16 @@ function App() {
  const handleSave = async () => {
   let imageUrl: string = "";
 
-  if (!title.trim() || !description.trim() || !tags.trim() || !githubRepo.trim() || !liveDemo.trim()) {
+  if (!title.trim() || !description.trim() || !tags.trim() || !githubRepo.trim() || !liveDemo.trim() || !file) {
     if (!title.trim()) setTitleError(true);
     if (!description.trim()) setDescriptionError(true);
     if (!tags.trim()) setTagsError(true);
     if (!githubRepo.trim()) setGithubRepoError(true);
     if (!liveDemo.trim()) setLiveDemoError(true);
-    alert("Please fill in the required fields: Title and Description.");
+    if (!file) setFileError(true);
+    alert("Please fill in the required fields.");
     return;
   }
-
-  if (!file) {
-    setFileError(true);
-    alert("Please select a file to upload.");
-    return;
-  }
-  
 
  if (file) {
       const fileN = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
@@ -232,7 +226,7 @@ function App() {
       case "liveDemo":
         setLiveDemo(value);
         if(value.trim()) setLiveDemoError(false);
-        break;
+        break; 
       default:
         break;
     }
@@ -244,8 +238,10 @@ function App() {
 
   const handleFileSelect = (selectedFile: File | null) => {
     setFile(selectedFile);
+    setFileError(false);
     setFileTitle(selectedFile?.name ?? "");
   };
+
   if (isLoggedIn === null) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-bg/30 text-ink">
