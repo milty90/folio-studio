@@ -3,12 +3,13 @@ import ProjectsSection from "./ui/layout/ProjectsSection";
 import Header from "./ui/layout/Header";
 import { useEffect, useState, useRef } from "react";
 import type { FileInputHandler } from "./ui/components/FileInput";
-
+import { Toaster, toast } from "sonner";
 import { getSession, signOut } from "./api/supabaseClient";
 import {
   uploadFile,
   addProjectToSupabase,
   fetchProjectDataFromSupabase,
+  deleteFileFromBucket,
 } from "./api/fetchProjectData";
 import { signInWithEmail } from "./api/supabaseClient";
 import type { Database } from "../types/database.types";
@@ -69,10 +70,10 @@ function App() {
       const session = await getSession();
       if (session.data?.session) {
         setIsLoggedIn(true);
-        console.log("User is logged in:", session.data.session);
+        //toast.success("Sie sind eingeloggt.");
       } else {
         setIsLoggedIn(false);
-        console.log("User is not logged in.");
+        toast.error("Sie sind nicht eingeloggt. Bitte melden Sie sich an.");
       }
     };
 
@@ -85,20 +86,22 @@ function App() {
 
   const handleLogin = async () => {
     if (!password) {
-      alert("Please enter a password.");
+      toast.error("Bitte geben Sie ein Passwort ein.");
       return;
     }
 
     const { data, error } = await signInWithEmail(VITE_ADMIN_EMAIL, password);
 
     if (error || !data.session) {
-      alert("Login failed. Please check your password and try again.");
+      toast.error(
+        "Login fehlgeschlagen. Bitte überprüfen Sie Ihr Passwort und versuchen Sie es erneut.",
+      );
       setIsLoggedIn(false);
       return;
     }
 
     setIsLoggedIn(true);
-    alert("Login successful!");
+    toast.success("Login erfolgreich!");
   };
 
   const handleLogout = async () => {
@@ -124,69 +127,82 @@ function App() {
       if (!githubRepo.trim()) setGithubRepoError(true);
       if (!liveDemo.trim()) setLiveDemoError(true);
       if (!file) setFileError(true);
-      alert("Please fill in the required fields.");
+      toast.error("Bitte füllen Sie die erforderlichen Felder aus.");
       return;
     }
 
     setIsUploading(true);
 
-    if (file) {
+    try {
       const fileN = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
 
-      const { error: uploadError, imageUrl: uploadedImageUrl } =
-        await uploadFile(file, fileN);
+      if (file) {
+        const { error: uploadError, imageUrl: uploadedImageUrl } =
+          await uploadFile(file, fileN);
 
-      if (uploadError) {
-        console.error("File upload error:", uploadError);
-        alert("File upload failed.");
+        if (uploadError) {
+          toast.error("Datei-Upload fehlgeschlagen.");
+          return;
+        }
+
+        imageUrl = uploadedImageUrl;
+      }
+
+      const newProject = {
+        title,
+        descr: description,
+        tags: tags
+          .split(/[,\s]+/)
+          .map((tag) => tag.trim().replace(/^"|"$/g, ""))
+          .filter((tag) => tag.length > 0),
+        img: imageUrl || "",
+        code: githubRepo,
+        live: liveDemo,
+        created_at: new Date().toISOString(),
+        desc: description,
+      };
+
+      const { data: insertedProject, error: projectError } =
+        await addProjectToSupabase(newProject);
+
+      if (projectError || !insertedProject) {
+        if (fileN) {
+          const { error: deleteError } = await deleteFileFromBucket(fileN);
+          if (deleteError) {
+            console.error(
+              "Projekt speichern fehlgeschlagen und Datei konnte nicht gelöscht werden:",
+              deleteError,
+            );
+          }
+        }
+
+        toast.error("Projekt speichern fehlgeschlagen.");
         return;
       }
 
-      imageUrl = uploadedImageUrl;
+      const projectsWithSignedUrl = insertedProject.map((project) => ({
+        ...project,
+        img: imageUrl || project.img,
+      }));
+
+      setProjects((currentProjects) => [
+        ...currentProjects,
+        ...projectsWithSignedUrl,
+      ]);
+
+      setTitle("");
+      setDescription("");
+      setTags("");
+      setGithubRepo("");
+      setLiveDemo("");
+      setFile(null);
+      setFileTitle("");
+      fileInputRef.current?.reset();
+      setIsUploading(false);
+      toast.success("Projekt erfolgreich gespeichert!");
+    } finally {
+      setIsUploading(false);
     }
-
-    const newProject = {
-      title,
-      descr: description,
-      tags: tags
-        .split(/[,\s]+/)
-        .map((tag) => tag.trim().replace(/^"|"$/g, ""))
-        .filter((tag) => tag.length > 0),
-      img: imageUrl || "",
-      code: githubRepo,
-      live: liveDemo,
-      created_at: new Date().toISOString(),
-      desc: description,
-    };
-
-    const { data: insertedProject, error: projectError } =
-      await addProjectToSupabase(newProject);
-
-    if (projectError || !insertedProject) {
-      console.error("Project insert error:", projectError);
-      alert("The project could not be saved.");
-      return;
-    }
-
-    const projectsWithSignedUrl = insertedProject.map((project) => ({
-      ...project,
-      img: imageUrl || project.img,
-    }));
-
-    setProjects((currentProjects) => [
-      ...currentProjects,
-      ...projectsWithSignedUrl,
-    ]);
-
-    setTitle("");
-    setDescription("");
-    setTags("");
-    setGithubRepo("");
-    setLiveDemo("");
-    setFile(null);
-    setFileTitle("");
-    fileInputRef.current?.reset();
-    setIsUploading(false);
   };
   const handleCancel = () => {
     setTitle("");
@@ -265,6 +281,29 @@ function App() {
         onLogout={handleLogout}
         isLoggedIn={isLoggedIn}
         password={password}
+      />
+      <Toaster
+        theme="system"
+        position="top-center"
+        richColors
+        closeButton
+        expand
+        visibleToasts={4}
+        toastOptions={{
+          duration: 3000,
+          className: "border border-line bg-bg text-ink shadow-lg",
+          descriptionClassName: "text-ink-soft",
+          actionButtonStyle: {
+            background: "#2563eb",
+            color: "#fff",
+          },
+
+          cancelButtonStyle: {
+            background: "transparent",
+            color: "#94a3b8",
+            border: "1px solid #334155",
+          },
+        }}
       />
       <main className="flex flex-col items-center justify-start min-h-screen bg-bg/30 text-ink">
         <div className="flex flex-col gap-5 w-full max-w-(--maxw) px-7 pb-10">

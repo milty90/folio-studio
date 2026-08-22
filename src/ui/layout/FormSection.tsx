@@ -1,5 +1,4 @@
 import { InputField } from "../components/InputField";
-
 import ColorButton from "../components/ColorButton";
 import FileInput, { type FileInputHandler } from "../components/FileInput";
 

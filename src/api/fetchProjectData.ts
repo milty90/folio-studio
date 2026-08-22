@@ -11,7 +11,9 @@ export async function fetchProjectDataFromSupabase() {
   return response.data;
 }
 
-export async function addProjectToSupabase(projectData: Database["public"]["Tables"]["portfolio-projects"]["Insert"]) {
+export async function addProjectToSupabase(
+  projectData: Database["public"]["Tables"]["portfolio-projects"]["Insert"],
+) {
   const response = await supabase
     .from("portfolio-projects")
     .insert([projectData])
@@ -41,13 +43,11 @@ export async function uploadFile(file: File, fileName: string) {
       imageUrl: "",
       error: uploadError,
     };
-  } 
+  }
 
-  const { data: signedUrlData, error: signedUrlError } =
-    await supabase.storage
-      .from("images")
-      .createSignedUrl(uploadData.path, 3600);
-
+  const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+    .from("images")
+    .createSignedUrl(uploadData.path, 3600);
 
   if (signedUrlError || !signedUrlData) {
     console.error("Error creating signed URL:", signedUrlError);
@@ -66,3 +66,10 @@ export async function uploadFile(file: File, fileName: string) {
   };
 }
 
+export const deleteFileFromBucket = async (fileName: string) => {
+  const { error } = await supabase.storage.from("images").remove([fileName]);
+  if (error) {
+    console.error("Error deleting file:", error);
+  }
+  return { error };
+};
