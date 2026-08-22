@@ -61,8 +61,9 @@ export function FormSection({
         <div
           className={`absolute inset-0 bg-black/50 z-50 flex rounded-2xl items-center justify-center ${isUploading ? "block" : "hidden"}`}
         >
-          <div className="bg-blue px-20 py-5 rounded-xl tracking-wider shadow-lg text-ink text-lg font-semibold">
-            Hochladen läuft...
+          <div className="border-3 border-x-ink-soft/20 border-b-blue-soft border-t-ink-soft/20 w-8 h-8 rounded-full animate-spin"></div>
+          <div className=" bg-transparent px-4 py-5 rounded-xl tracking-wider shadow-lg text-ink text-lg font-semibold flex items-center justify-center">
+            Hochladen läuft ...
           </div>
         </div>
 
