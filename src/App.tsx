@@ -45,7 +45,7 @@ function App() {
   const [password, setPassword] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-
+  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<FileInputHandler>(null);
   const [fileTitle, setFileTitle] = useState<string>();
 
@@ -79,7 +79,7 @@ function App() {
     checkSession();
   }, [isLoggedIn]);
 
- useEffect(() => {
+  useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
@@ -107,21 +107,30 @@ function App() {
     setIsLoggedIn(false);
   };
 
- const handleSave = async () => {
-  let imageUrl: string = "";
+  const handleSave = async () => {
+    let imageUrl: string = "";
 
-  if (!title.trim() || !description.trim() || !tags.trim() || !githubRepo.trim() || !liveDemo.trim() || !file) {
-    if (!title.trim()) setTitleError(true);
-    if (!description.trim()) setDescriptionError(true);
-    if (!tags.trim()) setTagsError(true);
-    if (!githubRepo.trim()) setGithubRepoError(true);
-    if (!liveDemo.trim()) setLiveDemoError(true);
-    if (!file) setFileError(true);
-    alert("Please fill in the required fields.");
-    return;
-  }
+    if (
+      !title.trim() ||
+      !description.trim() ||
+      !tags.trim() ||
+      !githubRepo.trim() ||
+      !liveDemo.trim() ||
+      !file
+    ) {
+      if (!title.trim()) setTitleError(true);
+      if (!description.trim()) setDescriptionError(true);
+      if (!tags.trim()) setTagsError(true);
+      if (!githubRepo.trim()) setGithubRepoError(true);
+      if (!liveDemo.trim()) setLiveDemoError(true);
+      if (!file) setFileError(true);
+      alert("Please fill in the required fields.");
+      return;
+    }
 
- if (file) {
+    setIsUploading(true);
+
+    if (file) {
       const fileN = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
 
       const { error: uploadError, imageUrl: uploadedImageUrl } =
@@ -136,56 +145,49 @@ function App() {
       imageUrl = uploadedImageUrl;
     }
 
+    const newProject = {
+      title,
+      descr: description,
+      tags: tags
+        .split(/[,\s]+/)
+        .map((tag) => tag.trim().replace(/^"|"$/g, ""))
+        .filter((tag) => tag.length > 0),
+      img: imageUrl || "",
+      code: githubRepo,
+      live: liveDemo,
+      created_at: new Date().toISOString(),
+      desc: description,
+    };
 
-  const newProject = {
-    title,
-    descr: description,
-    tags: tags
-      .split(/[,\s]+/)
-      .map((tag) => tag.trim().replace(/^"|"$/g, ""))
-      .filter((tag) => tag.length > 0),
-    img: imageUrl || "",
-    code: githubRepo,
-    live: liveDemo,
-    created_at: new Date().toISOString(),
-    desc: description,
+    const { data: insertedProject, error: projectError } =
+      await addProjectToSupabase(newProject);
+
+    if (projectError || !insertedProject) {
+      console.error("Project insert error:", projectError);
+      alert("The project could not be saved.");
+      return;
+    }
+
+    const projectsWithSignedUrl = insertedProject.map((project) => ({
+      ...project,
+      img: imageUrl || project.img,
+    }));
+
+    setProjects((currentProjects) => [
+      ...currentProjects,
+      ...projectsWithSignedUrl,
+    ]);
+
+    setTitle("");
+    setDescription("");
+    setTags("");
+    setGithubRepo("");
+    setLiveDemo("");
+    setFile(null);
+    setFileTitle("");
+    fileInputRef.current?.reset();
+    setIsUploading(false);
   };
-
-  if (!newProject.title || !newProject.descr) {
-    alert("Please fill in the required fields: Title and Description.");
-    return;
-  }
-
-  
-
-  const { data: insertedProject, error: projectError } =
-    await addProjectToSupabase(newProject);
-
-  if (projectError || !insertedProject) {
-    console.error("Project insert error:", projectError);
-    alert("The project could not be saved.");
-    return;
-  }
-
-  const projectsWithSignedUrl = insertedProject.map((project) => ({
-    ...project,
-    img: imageUrl || project.img,
-  }));
-
-  setProjects((currentProjects) => [
-    ...currentProjects,
-    ...projectsWithSignedUrl,
-  ]);
-
-  setTitle("");
-  setDescription("");
-  setTags("");
-  setGithubRepo("");
-  setLiveDemo("");
-  setFile(null);
-  setFileTitle("");
-  fileInputRef.current?.reset();
-};
   const handleCancel = () => {
     setTitle("");
     setTitleError(false);
@@ -203,30 +205,28 @@ function App() {
     fileInputRef.current?.reset();
   };
 
-   
-
   const handleChange = (field: string, value: string) => {
     switch (field) {
       case "title":
         setTitle(value);
-        if(value.trim()) setTitleError(false);
+        if (value.trim()) setTitleError(false);
         break;
       case "description":
         setDescription(value);
-        if(value.trim()) setDescriptionError(false);
+        if (value.trim()) setDescriptionError(false);
         break;
       case "tags":
         setTags(value);
-        if(value.trim()) setTagsError(false);
+        if (value.trim()) setTagsError(false);
         break;
       case "githubRepo":
         setGithubRepo(value);
-        if(value.trim()) setGithubRepoError(false);
+        if (value.trim()) setGithubRepoError(false);
         break;
       case "liveDemo":
         setLiveDemo(value);
-        if(value.trim()) setLiveDemoError(false);
-        break; 
+        if (value.trim()) setLiveDemoError(false);
+        break;
       default:
         break;
     }
@@ -248,7 +248,7 @@ function App() {
         <span className="sr-only">Session loading...</span>
       </main>
     );
-  } 
+  }
 
   return (
     <>
@@ -262,6 +262,7 @@ function App() {
       <main className="flex flex-col items-center justify-start min-h-screen bg-bg/30 text-ink">
         <div className="flex flex-col gap-5 w-full max-w-(--maxw) px-7 pb-10">
           <FormSection
+            isUploading={isUploading}
             inputRef={inputRef}
             titleError={titleError}
             descriptionError={descriptionError}
@@ -271,7 +272,7 @@ function App() {
             fileError={fileError}
             position={projects.length + 1 + ""}
             ref={fileInputRef}
-            fileName={fileTitle || ""} 
+            fileName={fileTitle || ""}
             onSave={handleSave}
             onCancel={handleCancel}
             onChange={handleChange}
@@ -283,7 +284,6 @@ function App() {
             githubRepo={githubRepo}
             liveDemo={liveDemo}
           />
-
           <ProjectsSection projects={isLoggedIn ? projects : dummyProjects} />
         </div>
       </main>
