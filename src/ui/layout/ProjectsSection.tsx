@@ -4,16 +4,20 @@ import { memo } from "react";
 
 interface ProjectsSectionProps {
   projects: Database["public"]["Tables"]["portfolio-projects"]["Row"][];
+  onRefresh?: () => void;
 }
 
-function ProjectsSection({ projects }: ProjectsSectionProps) {
+function ProjectsSection({ projects, onRefresh }: ProjectsSectionProps) {
   return (
     <section className="flex flex-col pt-10 gap-3">
       <div className="flex flex-row justify-between items-center gap-5">
         <p className=" uppercase pl-4 text-nowrap font-medium text-ink-soft tracking-wider mr-1 text-sm font-monospace">
           Projekte
         </p>
-        <p className="flex flex-row items-center gap-2 cursor-pointer text-nowrap text-ink-soft tracking-wide mr-1 text-sm font-monospace">
+        <p
+          onClick={onRefresh}
+          className="flex flex-row items-center gap-2 cursor-pointer text-nowrap text-ink-soft tracking-wide mr-1 text-sm font-monospace"
+        >
           ↻ refresh
         </p>
         <div className="text-line border-b w-svw mr-4"></div>
@@ -22,7 +26,7 @@ function ProjectsSection({ projects }: ProjectsSectionProps) {
         <div className="flex flex-col divide-y divide-line/60 bp-6 justify-between items-center gap-5">
           {projects.map((project, index) => (
             <ProjectCard
-             isDragging={false}
+              isDragging={false}
               key={project.id}
               position={index + 1}
               title={project.title || ""}

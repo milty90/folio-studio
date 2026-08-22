@@ -242,6 +242,13 @@ function App() {
     setFileTitle(selectedFile?.name ?? "");
   };
 
+  const handleRefresh = async () => {
+    const data = await fetchProjectDataFromSupabase();
+    if (data) {
+      setProjects(data);
+    }
+  };
+
   if (isLoggedIn === null) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-bg/30 text-ink">
@@ -284,7 +291,10 @@ function App() {
             githubRepo={githubRepo}
             liveDemo={liveDemo}
           />
-          <ProjectsSection projects={isLoggedIn ? projects : dummyProjects} />
+          <ProjectsSection
+            projects={isLoggedIn ? projects : dummyProjects}
+            onRefresh={handleRefresh}
+          />
         </div>
       </main>
     </>

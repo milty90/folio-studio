@@ -90,11 +90,12 @@ export function FormSection({
         </div>
         <div className="grid grid-cols-2 gap-x-8 gap-y-3">
           <FileInput
+            isLoggedIn={isLoggedIn ? true : false}
             inputRef={inputRef}
             ref={ref}
             fileName={fileName}
             error={fileError}
-            isActive={true}
+            isActive={isLoggedIn ? true : false}
             label="Hauptbild Hochladen"
             text="Bild auswählen"
             onFileSelect={onFileChange}

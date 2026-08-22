@@ -5,7 +5,7 @@ interface HeaderProps {
   onLogin: () => void;
   onLogout: () => void;
   onChangePassword: (value: string) => void;
-  isLoggedIn: Boolean | null;
+  isLoggedIn: boolean | null;
 
   password: string;
 }
