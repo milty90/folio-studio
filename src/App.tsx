@@ -70,15 +70,14 @@ function App() {
       const session = await getSession();
       if (session.data?.session) {
         setIsLoggedIn(true);
-        //toast.success("Sie sind eingeloggt.");
       } else {
         setIsLoggedIn(false);
-        toast.error("Sie sind nicht eingeloggt. Bitte melden Sie sich an.");
+        toast.error("Bitte melden Sie sich an.");
       }
     };
 
     checkSession();
-  }, [isLoggedIn]);
+  }, []);
 
   useEffect(() => {
     inputRef.current?.focus();
