@@ -1,6 +1,6 @@
 import { ProjectCard } from "../components/ProjectCard";
 import type { Database } from "../../../types/database.types";
-import { memo } from "react";
+import { memo, useState } from "react";
 
 interface ProjectsSectionProps {
   projects: Database["public"]["Tables"]["portfolio-projects"]["Row"][];
@@ -8,6 +8,9 @@ interface ProjectsSectionProps {
 }
 
 function ProjectsSection({ projects, onRefresh }: ProjectsSectionProps) {
+  const [draggedPos, setDraggedPos] = useState<number | null>(null);
+  const [dragOverPos, setDragOverPos] = useState<number | null>(null);
+
   return (
     <section className="flex flex-col pt-10 gap-3">
       <div className="flex flex-row justify-between items-center gap-5">
@@ -23,10 +26,12 @@ function ProjectsSection({ projects, onRefresh }: ProjectsSectionProps) {
         <div className="text-line border-b w-svw mr-4"></div>
       </div>
       <div className="bg-bg-alt border border-line rounded-2xl p-6 pb-4 justify-between items-center gap-5">
-        <div className="flex flex-col divide-y divide-line/60 bp-6 justify-between items-center gap-5">
+        {/* <div
+          className={`flex flex-col divide-y divide-line/60 pb-6 justify-between items-center gap-5`}
+        > */}
+        <div className="flex flex-col gap-2">
           {projects.map((project, index) => (
             <ProjectCard
-              isDragging={false}
               key={project.id}
               position={index + 1}
               title={project.title || ""}
@@ -35,6 +40,24 @@ function ProjectsSection({ projects, onRefresh }: ProjectsSectionProps) {
               imageUrl={project.img || ""}
               githubUrl={project.code || ""}
               liveDemoUrl={project.live || ""}
+              isDragging={draggedPos === index}
+              isDraggingOver={dragOverPos === index && draggedPos !== index}
+              onDragStart={() => setDraggedPos(index)}
+              onDragEnter={(e) => {
+                e.preventDefault();
+                setDragOverPos(index);
+              }}
+              onDragOver={(e) => {
+                e.preventDefault();
+              }}
+              onDragLeave={(e) => {
+                e.preventDefault();
+              }}
+              onDrop={(e) => {
+                e.preventDefault();
+                setDraggedPos(null);
+                setDragOverPos(null);
+              }}
             />
           ))}
         </div>

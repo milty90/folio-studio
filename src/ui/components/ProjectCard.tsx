@@ -10,6 +10,12 @@ interface ProjectCardProps {
   githubUrl: string;
   liveDemoUrl: string;
   isDragging: boolean;
+  isDraggingOver: boolean;
+  onDragEnter: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragLeave: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragStart?: (e: React.DragEvent<HTMLDivElement>, position: string) => void;
 }
 
 export function ProjectCard({
@@ -18,11 +24,34 @@ export function ProjectCard({
   tags,
   githubUrl,
   liveDemoUrl,
-  isDragging ,
+  isDragging,
+  isDraggingOver,
+  onDragStart,
+  onDragEnter,
+  onDragOver,
+  onDragLeave,
+  onDrop,
 }: ProjectCardProps) {
   return (
-    <div draggable={true} className={`flex flex-row w-full bg-bg-alt px-3 py-2 justify-between items-start gap-5 ${isDragging ? "opacity-50 border  border-line" : ""}`}>
-      <p className="tracking-tight   font-light text-ink-soft text-[0.9rem] font-inter">
+    <div
+      draggable={true}
+      onDragEnter={onDragEnter}
+      onDragOver={onDragOver}
+      onDragLeave={onDragLeave}
+      onDrop={onDrop}
+      onDragStart={(e) => {
+        e.dataTransfer.setData("pos", position.toString());
+        onDragStart?.(e, position.toString());
+      }}
+      className={`flex flex-row w-full bg-bg-alt px-3 py-2 justify-between items-start gap-5 transition-all duration-200 ${
+        isDraggingOver ? "mt-8 border-t-2 border-dashed border-line" : ""
+      } ${
+        isDragging
+          ? "opacity-90 border rounded-2xl origin-top-left rotate-1 border-dashed border-line"
+          : ""
+      }`}
+    >
+      <p className="tracking-tight font-light text-ink-soft text-[0.9rem] font-inter">
         {position.toString().padStart(2, "0")}
       </p>
       <div className="flex flex-col w-full gap-1">
@@ -51,8 +80,8 @@ export function ProjectCard({
           color="transparent"
           text="Löschen"
           onClick={() => {}}
-        /></div>
-        
+        />
+      </div>
     </div>
   );
 }

@@ -47,7 +47,7 @@ export async function uploadFile(file: File, fileName: string) {
 
   const { data: signedUrlData, error: signedUrlError } = await supabase.storage
     .from("images")
-    .createSignedUrl(uploadData.path, 3600);
+    .createSignedUrl(uploadData.path, 60 * 60 * 24 * 365);
 
   if (signedUrlError || !signedUrlData) {
     console.error("Error creating signed URL:", signedUrlError);
