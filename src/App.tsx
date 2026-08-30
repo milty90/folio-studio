@@ -10,6 +10,7 @@ import {
   addProjectToSupabase,
   fetchProjectDataFromSupabase,
   deleteFileFromBucket,
+  deleteProjectFromSupabase,
 } from "./api/fetchProjectData";
 import { signInWithEmail } from "./api/supabaseClient";
 import type { Database } from "../types/database.types";
@@ -264,6 +265,27 @@ function App() {
     }
   };
 
+  const handleEdit = (id: number) => {
+    projects.forEach((project) => {
+      if (project.id === id) {
+        setTitle(project.title || "");
+        setDescription(project.descr || "");
+        setTags((project.tags as string[])?.join(", ") || "");
+        setGithubRepo(project.code || "");
+        setLiveDemo(project.live || "");
+        setFileTitle(project.img || "");
+      }
+    });
+  };
+
+  const handleDelete = (id: number) => {
+    setProjects((currentProjects) =>
+      currentProjects.filter((project) => project.id !== id),
+    );
+    deleteProjectFromSupabase(id);
+    toast.success("Projekt erfolgreich gelöscht!");
+  };
+
   if (isLoggedIn === null) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-bg/30 text-ink">
@@ -330,6 +352,8 @@ function App() {
             liveDemo={liveDemo}
           />
           <ProjectsSection
+            handleEdit={(id) => handleEdit(id)}
+            handleDelete={(id) => handleDelete(id)}
             projects={isLoggedIn ? projects : dummyProjects}
             onRefresh={handleRefresh}
           />

@@ -2,6 +2,8 @@ import ColorButton from "./ColorButton";
 import { TagBudget } from "./TagBudget";
 
 interface ProjectCardProps {
+  handleEdit?: (id: number) => void;
+  handleDelete?: (id: number) => void;
   position: number;
   title: string;
   description: string;
@@ -15,15 +17,19 @@ interface ProjectCardProps {
   onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
   onDragLeave: (e: React.DragEvent<HTMLDivElement>) => void;
   onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
-  onDragStart?: (e: React.DragEvent<HTMLDivElement>, position: string) => void;
+  onDragStart?: (e: React.DragEvent<HTMLDivElement>, position: number) => void;
 }
 
 export function ProjectCard({
+  handleEdit,
+  handleDelete,
   position,
   title,
+
   tags,
   githubUrl,
   liveDemoUrl,
+
   isDragging,
   isDraggingOver,
   onDragStart,
@@ -41,13 +47,15 @@ export function ProjectCard({
       onDrop={onDrop}
       onDragStart={(e) => {
         e.dataTransfer.setData("pos", position.toString());
-        onDragStart?.(e, position.toString());
+        onDragStart?.(e, position);
       }}
-      className={`flex flex-row w-full bg-bg-alt px-3 py-2 justify-between items-start gap-5 transition-all duration-200 ${
-        isDraggingOver ? "mt-8 border-t-2 border-dashed border-line" : ""
+      className={`flex flex-row w-full bg-bg-alt px-3 py-2 justify-between items-start gap-5 transition-all duration-100 ${
+        isDraggingOver
+          ? "mt-8 border-2 border-dashed border-blue rounded-2xl"
+          : ""
       } ${
         isDragging
-          ? "opacity-90 border rounded-2xl origin-top-left rotate-1 border-dashed border-line"
+          ? "opacity-90 border-2 rounded-2xl origin-top-left rotate-1  border-blue"
           : ""
       }`}
     >
@@ -73,13 +81,15 @@ export function ProjectCard({
           border="border border-line"
           color="transparent"
           text="Bearbeiten"
-          onClick={() => {}}
+          onClick={handleEdit ? () => handleEdit(position) : undefined}
+          isActive={true}
         />
         <ColorButton
           border="border border-line"
           color="transparent"
           text="Löschen"
-          onClick={() => {}}
+          onClick={handleDelete ? () => handleDelete(position) : undefined}
+          isActive={true}
         />
       </div>
     </div>

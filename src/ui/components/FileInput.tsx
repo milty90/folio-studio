@@ -37,7 +37,7 @@ const FileInput = forwardRef<FileInputHandler, FileInputProps>(
 
     return (
       <div className="flex flex-col mt-0.5 gap-1">
-        <label className="uppercase ml-2  text-nowrap font-medium text-ink-soft/80 tracking-wider mr-1 mb-1 text-[0.82rem] font-monospace">
+        <label className="uppercase ml-2 text-nowrap font-medium text-ink-soft/80 tracking-wider mr-1 mb-1 text-[0.82rem] font-monospace">
           {label}
         </label>
         <div className="flex flex-row gap-1 justify-between px-2.5 items-center">
@@ -48,7 +48,7 @@ const FileInput = forwardRef<FileInputHandler, FileInputProps>(
             onChange={handleChange}
           />
           <span
-            className={`${error ? "text-red-800/90" : "text-ink/80"} text-[0.82rem] font-monospace`}
+            className={`${error ? "text-red-800/90" : "text-ink/80"} text-[0.82rem] font-monospace text-wrap overflow-hidden whitespace-nowrap overflow-ellipsis`}
           >
             {fileName || "Keine ausgewählt"}
           </span>

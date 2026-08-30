@@ -66,6 +66,18 @@ export async function uploadFile(file: File, fileName: string) {
   };
 }
 
+export async function deleteProjectFromSupabase(projectId: number) {
+  const { error } = await supabase
+    .from("portfolio-projects")
+    .delete()
+    .eq("id", projectId);
+  if (error) {
+    console.error("Error deleting project:", error);
+  }
+  console.log(`Project with ID ${projectId} deleted successfully.`);
+  return { error };
+}
+
 export const deleteFileFromBucket = async (fileName: string) => {
   const { error } = await supabase.storage.from("images").remove([fileName]);
   if (error) {

@@ -4,10 +4,17 @@ import { memo, useState } from "react";
 
 interface ProjectsSectionProps {
   projects: Database["public"]["Tables"]["portfolio-projects"]["Row"][];
+  handleEdit?: (id: number) => void;
+  handleDelete?: (id: number) => void;
   onRefresh?: () => void;
 }
 
-function ProjectsSection({ projects, onRefresh }: ProjectsSectionProps) {
+function ProjectsSection({
+  projects,
+  onRefresh,
+  handleEdit,
+  handleDelete,
+}: ProjectsSectionProps) {
   const [draggedPos, setDraggedPos] = useState<number | null>(null);
   const [dragOverPos, setDragOverPos] = useState<number | null>(null);
 
@@ -26,12 +33,16 @@ function ProjectsSection({ projects, onRefresh }: ProjectsSectionProps) {
         <div className="text-line border-b w-svw mr-4"></div>
       </div>
       <div className="bg-bg-alt border border-line rounded-2xl p-6 pb-4 justify-between items-center gap-5">
-        {/* <div
-          className={`flex flex-col divide-y divide-line/60 pb-6 justify-between items-center gap-5`}
-        > */}
-        <div className="flex flex-col gap-2">
+        <div
+          className={`flex flex-col divide-y divide-line/60 justify-between items-center gap-7`}
+        >
+          {/* <div className="flex flex-col gap-2"> */}
           {projects.map((project, index) => (
             <ProjectCard
+              handleEdit={handleEdit ? () => handleEdit(project.id) : undefined}
+              handleDelete={
+                handleDelete ? () => handleDelete(project.id) : undefined
+              }
               key={project.id}
               position={index + 1}
               title={project.title || ""}
@@ -42,7 +53,10 @@ function ProjectsSection({ projects, onRefresh }: ProjectsSectionProps) {
               liveDemoUrl={project.live || ""}
               isDragging={draggedPos === index}
               isDraggingOver={dragOverPos === index && draggedPos !== index}
-              onDragStart={() => setDraggedPos(index)}
+              onDragStart={(e) => {
+                e.dataTransfer.setData("pos", index.toString());
+                setDraggedPos(index);
+              }}
               onDragEnter={(e) => {
                 e.preventDefault();
                 setDragOverPos(index);
