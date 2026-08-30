@@ -20,14 +20,14 @@ const dummyProjects: Database["public"]["Tables"]["portfolio-projects"]["Row"][]
   [
     {
       id: 1,
+      position: 1,
       title: "Beispielprojekt 1",
-      descr: "",
+      desc: "",
       tags: ["React", "TypeScript", "TailwindCSS"],
       img: "https://via.placeholder.com/150",
       code: "https://via.placeholder.com/150",
       live: "https://via.placeholder.com/150",
       created_at: new Date().toISOString(),
-      desc: "This is a sample project description ",
     },
   ];
 
@@ -150,16 +150,16 @@ function App() {
 
       const newProject = {
         title,
-        descr: description,
+        desc: description,
         tags: tags
           .split(/[,\s]+/)
           .map((tag) => tag.trim().replace(/^"|"$/g, ""))
           .filter((tag) => tag.length > 0),
         img: imageUrl || "",
+        position: projects.length + 1,
         code: githubRepo,
         live: liveDemo,
         created_at: new Date().toISOString(),
-        desc: description,
       };
 
       const { data: insertedProject, error: projectError } =
@@ -269,7 +269,7 @@ function App() {
     projects.forEach((project) => {
       if (project.id === id) {
         setTitle(project.title || "");
-        setDescription(project.descr || "");
+        setDescription(project.desc || "");
         setTags((project.tags as string[])?.join(", ") || "");
         setGithubRepo(project.code || "");
         setLiveDemo(project.live || "");
@@ -284,6 +284,29 @@ function App() {
     );
     deleteProjectFromSupabase(id);
     toast.success("Projekt erfolgreich gelöscht!");
+  };
+
+  const handleDragAndDrop = (draggedPos: number, targetPos: number) => {
+    const draggedProject = projects.find(
+      (project) => project.position === draggedPos,
+    );
+    const targetProject = projects.find(
+      (project) => project.position === targetPos,
+    );
+
+    if (!draggedProject || !targetProject) return;
+
+    const updatedProjects = projects.map((project) => {
+      if (project.id === draggedProject.id) {
+        return { ...project, position: targetPos };
+      }
+      if (project.id === targetProject.id) {
+        return { ...project, position: draggedPos };
+      }
+      return project;
+    });
+
+    setProjects(updatedProjects);
   };
 
   if (isLoggedIn === null) {
@@ -352,6 +375,7 @@ function App() {
             liveDemo={liveDemo}
           />
           <ProjectsSection
+            handleDragAndDrop={handleDragAndDrop}
             handleEdit={(id) => handleEdit(id)}
             handleDelete={(id) => handleDelete(id)}
             projects={isLoggedIn ? projects : dummyProjects}

@@ -46,7 +46,7 @@ export function ProjectCard({
       onDragLeave={onDragLeave}
       onDrop={onDrop}
       onDragStart={(e) => {
-        e.dataTransfer.setData("pos", position.toString());
+        e.dataTransfer.setData("position", position.toString());
         onDragStart?.(e, position);
       }}
       className={`flex flex-row w-full bg-bg-alt px-3 py-2 justify-between items-start gap-5 transition-all duration-100 ${

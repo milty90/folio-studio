@@ -4,6 +4,7 @@ import { memo, useState } from "react";
 
 interface ProjectsSectionProps {
   projects: Database["public"]["Tables"]["portfolio-projects"]["Row"][];
+  handleDragAndDrop?: (draggedPos: number, dragOverPos: number) => void;
   handleEdit?: (id: number) => void;
   handleDelete?: (id: number) => void;
   onRefresh?: () => void;
@@ -11,12 +12,17 @@ interface ProjectsSectionProps {
 
 function ProjectsSection({
   projects,
+  handleDragAndDrop,
   onRefresh,
   handleEdit,
   handleDelete,
 }: ProjectsSectionProps) {
   const [draggedPos, setDraggedPos] = useState<number | null>(null);
   const [dragOverPos, setDragOverPos] = useState<number | null>(null);
+
+  const sortedProjects = [...projects].sort(
+    (a, b) => (a.position ?? 999) - (b.position ?? 999),
+  );
 
   return (
     <section className="flex flex-col pt-10 gap-3">
@@ -37,25 +43,25 @@ function ProjectsSection({
           className={`flex flex-col divide-y divide-line/60 justify-between items-center gap-7`}
         >
           {/* <div className="flex flex-col gap-2"> */}
-          {projects.map((project, index) => (
+          {sortedProjects.map((project, index) => (
             <ProjectCard
               handleEdit={handleEdit ? () => handleEdit(project.id) : undefined}
               handleDelete={
                 handleDelete ? () => handleDelete(project.id) : undefined
               }
               key={project.id}
-              position={index + 1}
+              position={project.position}
               title={project.title || ""}
-              description={project.descr || ""}
+              description={project.desc || ""}
               tags={(project.tags as string[]) || []}
               imageUrl={project.img || ""}
               githubUrl={project.code || ""}
               liveDemoUrl={project.live || ""}
-              isDragging={draggedPos === index}
+              isDragging={draggedPos === project.position}
               isDraggingOver={dragOverPos === index && draggedPos !== index}
               onDragStart={(e) => {
                 e.dataTransfer.setData("pos", index.toString());
-                setDraggedPos(index);
+                setDraggedPos(project.position || index);
               }}
               onDragEnter={(e) => {
                 e.preventDefault();
@@ -69,6 +75,13 @@ function ProjectsSection({
               }}
               onDrop={(e) => {
                 e.preventDefault();
+                if (
+                  draggedPos !== null &&
+                  dragOverPos !== null &&
+                  handleDragAndDrop
+                ) {
+                  handleDragAndDrop(draggedPos, dragOverPos);
+                }
                 setDraggedPos(null);
                 setDragOverPos(null);
               }}
