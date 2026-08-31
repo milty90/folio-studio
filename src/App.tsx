@@ -334,6 +334,7 @@ function App() {
           console.error(error);
         }
       });
+      toast.success("Reihenfolge erfolgreich gespeichert!");
 
       return withNewPositions;
     });
