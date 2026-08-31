@@ -15,7 +15,7 @@ interface ProjectCardProps {
   isDraggingOver: boolean;
   onDragEnter: (e: React.DragEvent<HTMLDivElement>) => void;
   onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
-  onDragLeave: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragEnd: (e: React.DragEvent<HTMLDivElement>) => void;
   onDrop: (e: React.DragEvent<HTMLDivElement>) => void;
   onDragStart?: (e: React.DragEvent<HTMLDivElement>, position: number) => void;
 }
@@ -25,7 +25,6 @@ export function ProjectCard({
   handleDelete,
   position,
   title,
-
   tags,
   githubUrl,
   liveDemoUrl,
@@ -35,7 +34,7 @@ export function ProjectCard({
   onDragStart,
   onDragEnter,
   onDragOver,
-  onDragLeave,
+  onDragEnd,
   onDrop,
 }: ProjectCardProps) {
   return (
@@ -43,7 +42,7 @@ export function ProjectCard({
       draggable={true}
       onDragEnter={onDragEnter}
       onDragOver={onDragOver}
-      onDragLeave={onDragLeave}
+      onDragEnd={onDragEnd}
       onDrop={onDrop}
       onDragStart={(e) => {
         e.dataTransfer.setData("position", position.toString());
@@ -60,7 +59,7 @@ export function ProjectCard({
       }`}
     >
       <p className="tracking-tight font-light text-ink-soft text-[0.9rem] font-inter">
-        {position.toString().padStart(2, "0")}
+        {(position + 1).toString().padStart(2, "0")}
       </p>
       <div className="flex flex-col w-full gap-1">
         <p className="tracking-tight text-nowrap font-medium text-ink/80 text-[0.94rem] font-inter">

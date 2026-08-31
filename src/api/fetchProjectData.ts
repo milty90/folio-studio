@@ -28,6 +28,20 @@ export async function addProjectToSupabase(
   return response;
 }
 
+export async function updateProjectPositions(
+  updates: {
+    id: number;
+    position: number;
+  }[],
+) {
+  const { data, error } = await supabase
+    .from("portfolio-projects")
+    .upsert(updates, { onConflict: "id" })
+    .select();
+
+  return { data, error };
+}
+
 export async function uploadFile(file: File, fileName: string) {
   const { data: uploadData, error: uploadError } = await supabase.storage
     .from("images")

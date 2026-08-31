@@ -8,6 +8,7 @@ import { getSession, signOut } from "./api/supabaseClient";
 import {
   uploadFile,
   addProjectToSupabase,
+  updateProjectPositions,
   fetchProjectDataFromSupabase,
   deleteFileFromBucket,
   deleteProjectFromSupabase,
@@ -22,6 +23,28 @@ const dummyProjects: Database["public"]["Tables"]["portfolio-projects"]["Row"][]
       id: 1,
       position: 1,
       title: "Beispielprojekt 1",
+      desc: "",
+      tags: ["React", "TypeScript", "TailwindCSS"],
+      img: "https://via.placeholder.com/150",
+      code: "https://via.placeholder.com/150",
+      live: "https://via.placeholder.com/150",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: 2,
+      position: 2,
+      title: "Beispielprojekt 2",
+      desc: "",
+      tags: ["Vue", "JavaScript", "Bootstrap"],
+      img: "https://via.placeholder.com/150",
+      code: "https://via.placeholder.com/150",
+      live: "https://via.placeholder.com/150",
+      created_at: new Date().toISOString(),
+    },
+    {
+      id: 3,
+      position: 3,
+      title: "Beispielprojekt 3",
       desc: "",
       tags: ["React", "TypeScript", "TailwindCSS"],
       img: "https://via.placeholder.com/150",
@@ -267,6 +290,13 @@ function App() {
 
   const handleEdit = (id: number) => {
     projects.forEach((project) => {
+      console.log(
+        "Checking project:",
+        project.id,
+        project.title,
+        "against id:",
+        id,
+      );
       if (project.id === id) {
         setTitle(project.title || "");
         setDescription(project.desc || "");
@@ -286,27 +316,27 @@ function App() {
     toast.success("Projekt erfolgreich gelöscht!");
   };
 
-  const handleDragAndDrop = (draggedPos: number, targetPos: number) => {
-    const draggedProject = projects.find(
-      (project) => project.position === draggedPos,
-    );
-    const targetProject = projects.find(
-      (project) => project.position === targetPos,
-    );
+  const handleDragAndDrop = (draggedIndex: number, dragOverIndex: number) => {
+    setProjects((prev) => {
+      const sorted = [...prev].sort(
+        (a, b) => (a.position ?? 999) - (b.position ?? 999),
+      );
+      const [moved] = sorted.splice(draggedIndex, 1);
+      sorted.splice(dragOverIndex, 0, moved);
 
-    if (!draggedProject || !targetProject) return;
+      const withNewPositions = sorted.map((p, i) => ({ ...p, position: i }));
 
-    const updatedProjects = projects.map((project) => {
-      if (project.id === draggedProject.id) {
-        return { ...project, position: targetPos };
-      }
-      if (project.id === targetProject.id) {
-        return { ...project, position: draggedPos };
-      }
-      return project;
+      updateProjectPositions(
+        withNewPositions.map((p) => ({ id: p.id, position: p.position })),
+      ).then(({ error }) => {
+        if (error) {
+          toast.error("Reihenfolge konnte nicht gespeichert werden.");
+          console.error(error);
+        }
+      });
+
+      return withNewPositions;
     });
-
-    setProjects(updatedProjects);
   };
 
   if (isLoggedIn === null) {

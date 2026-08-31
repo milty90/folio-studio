@@ -24,6 +24,8 @@ function ProjectsSection({
     (a, b) => (a.position ?? 999) - (b.position ?? 999),
   );
 
+  console.log("sortedProjects", sortedProjects);
+
   return (
     <section className="flex flex-col pt-10 gap-3">
       <div className="flex flex-row justify-between items-center gap-5">
@@ -57,11 +59,11 @@ function ProjectsSection({
               imageUrl={project.img || ""}
               githubUrl={project.code || ""}
               liveDemoUrl={project.live || ""}
-              isDragging={draggedPos === project.position}
+              isDragging={draggedPos === index}
               isDraggingOver={dragOverPos === index && draggedPos !== index}
               onDragStart={(e) => {
-                e.dataTransfer.setData("pos", index.toString());
-                setDraggedPos(project.position || index);
+                e.dataTransfer.setData("position", index.toString());
+                setDraggedPos(index);
               }}
               onDragEnter={(e) => {
                 e.preventDefault();
@@ -70,18 +72,15 @@ function ProjectsSection({
               onDragOver={(e) => {
                 e.preventDefault();
               }}
-              onDragLeave={(e) => {
-                e.preventDefault();
-              }}
               onDrop={(e) => {
                 e.preventDefault();
-                if (
-                  draggedPos !== null &&
-                  dragOverPos !== null &&
-                  handleDragAndDrop
-                ) {
-                  handleDragAndDrop(draggedPos, dragOverPos);
+                if (draggedPos !== null && handleDragAndDrop) {
+                  handleDragAndDrop(draggedPos, index);
                 }
+                setDraggedPos(null);
+                setDragOverPos(null);
+              }}
+              onDragEnd={() => {
                 setDraggedPos(null);
                 setDragOverPos(null);
               }}
