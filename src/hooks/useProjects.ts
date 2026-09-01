@@ -11,11 +11,18 @@ type Project = Database["public"]["Tables"]["portfolio-projects"]["Row"];
 
 export function useProjects() {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   const loadProjects = useCallback(async () => {
+    setIsLoading(true);
+    if (!isLoading) {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+    }
     const data = await fetchProjectDataFromSupabase();
     if (data) setProjects(data);
-  }, []);
+  }, [isLoading]);
 
   useEffect(() => {
     let isCancelled = false;
@@ -86,5 +93,6 @@ export function useProjects() {
     deleteProject,
     reorderProjects,
     clearProjects,
+    isLoading,
   };
 }

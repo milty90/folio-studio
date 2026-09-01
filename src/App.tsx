@@ -3,7 +3,7 @@ import ProjectsSection from "./ui/layout/ProjectsSection";
 import Header from "./ui/layout/Header";
 import { useEffect, useState, useRef } from "react";
 import type { FileInputHandler } from "./ui/components/FileInput";
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
 import { useAuth } from "./hooks/useAuth";
 import type { Database } from "../types/database.types";
 import { useProjectForm } from "./hooks/useProjectForm";
@@ -53,6 +53,7 @@ function App() {
 
   const { isLoggedIn, password, setPassword, login, logout } = useAuth();
   const {
+    isLoading,
     projects,
     updateProject,
     addProject,
@@ -88,6 +89,39 @@ function App() {
       setEditingProjectId(id);
       loadIntoForm(project);
     }
+  };
+
+  const handleDelete = (id: number) => {
+    toast.warning(
+      "Möchten Sie dieses Projekt wirklich löschen?",
+
+      {
+        cancel: {
+          label: "Abbrechen",
+
+          onClick: () => {
+            toast.dismiss();
+          },
+        },
+        action: {
+          label: "Löschen",
+
+          onClick: () => {
+            deleteProject(id);
+          },
+        },
+        actionButtonStyle: {
+          background: "#3d5a8a",
+          color: "#ffffff",
+          border: "1px solid #3d5a8a",
+        },
+        cancelButtonStyle: {
+          background: "transparent",
+          color: "#fff",
+          border: "1px solid #334155",
+        },
+      },
+    );
   };
 
   const handleCancel = () => {
@@ -166,7 +200,8 @@ function App() {
           <ProjectsSection
             handleDragAndDrop={reorderProjects}
             handleEdit={handleEdit}
-            handleDelete={deleteProject}
+            handleDelete={handleDelete}
+            isLoading={isLoading}
             projects={isLoggedIn ? projects : dummyProjects}
             onRefresh={loadProjects}
           />

@@ -8,6 +8,7 @@ interface ProjectsSectionProps {
   handleEdit?: (id: number) => void;
   handleDelete?: (id: number) => void;
   onRefresh?: () => void;
+  isLoading?: boolean;
 }
 
 function ProjectsSection({
@@ -16,6 +17,7 @@ function ProjectsSection({
   onRefresh,
   handleEdit,
   handleDelete,
+  isLoading,
 }: ProjectsSectionProps) {
   const [draggedPos, setDraggedPos] = useState<number | null>(null);
   const [dragOverPos, setDragOverPos] = useState<number | null>(null);
@@ -36,7 +38,10 @@ function ProjectsSection({
           onClick={onRefresh}
           className="flex flex-row items-center gap-2 cursor-pointer text-nowrap text-ink-soft tracking-wide mr-1 text-sm font-monospace"
         >
-          ↻ refresh
+          <span className={`tracking-wide  ${isLoading ? "animate-spin" : ""}`}>
+            ↻
+          </span>
+          refresh
         </p>
         <div className="text-line border-b w-svw mr-4"></div>
       </div>
