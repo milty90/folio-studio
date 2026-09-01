@@ -1,5 +1,4 @@
 import ColorButton from "../components/ColorButton";
-import { InputField } from "../components/InputField";
 
 interface HeaderProps {
   onLogin: () => void;
@@ -41,14 +40,21 @@ export default function Header({
                 {"LOGGED_IN"}
               </span>
             ) : (
-              <InputField
-                label=""
-                hint={"Enter Password"}
-                value={password}
-                onChange={(value) => onChangePassword(value)}
-                type="password"
-                isActive={!isLoggedIn}
-              />
+              <form
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  onLogin();
+                }}
+              >
+                <input
+                  type="password"
+                  autoComplete="current-password"
+                  placeholder="Enter Password"
+                  value={password}
+                  onChange={(event) => onChangePassword(event.target.value)}
+                  className="text-ink pl-3 font-normal h-10 border bg-bg/30 border-line placeholder:text-[0.82rem] placeholder:pl-1 focus:outline rounded-md px-2 py-1 text-sm font-monospace border-line placeholder:text-ink-faint focus:border-blue focus:ring focus:ring-blue-500"
+                />
+              </form>
             )}
           </div>
           <ColorButton

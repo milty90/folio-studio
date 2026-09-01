@@ -4,7 +4,7 @@ interface InputFieldProps {
   hint?: string;
   value: string;
   isActive?: boolean;
-  inputRef?: React.RefObject<HTMLInputElement | null> ;
+  inputRef?: React.RefObject<HTMLInputElement | null>;
   error?: boolean;
   onChange: (value: string) => void;
 }
@@ -32,10 +32,11 @@ export function InputField({
         font-normal ${type === "textarea" ? "h-20" : "h-10"} border bg-bg/30 border-line 
         placeholder:text-[0.82rem]  placeholder:pl-1 
         focus:outline rounded-md px-2 py-1 text-sm font-monospace 
-        ${error
-          ? "border-red-900 placeholder:text-red-800/90 focus:border-red-900 focus:ring focus:ring-red-500"
-          : "border-line placeholder:text-ink-faint focus:border-blue focus:ring focus:ring-blue-500"
-      }`}
+        ${
+          error
+            ? "border-red-900 placeholder:text-red-800/90 focus:border-red-900 focus:ring focus:ring-red-500"
+            : "border-line placeholder:text-ink-faint focus:border-blue focus:ring focus:ring-blue-500"
+        }`}
         value={value}
         onChange={(e) => onChange(e.target.value)}
       />
