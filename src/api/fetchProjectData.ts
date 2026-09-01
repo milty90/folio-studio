@@ -1,6 +1,9 @@
 import type { Database } from "../../types/database.types";
 import { supabase } from "./supabase";
 
+type ProjectUpdate =
+  Database["public"]["Tables"]["portfolio-projects"]["Update"];
+
 export async function fetchProjectDataFromSupabase() {
   const response = await supabase.from("portfolio-projects").select("*");
   if (response.error) {
@@ -26,6 +29,20 @@ export async function addProjectToSupabase(
   }
 
   return response;
+}
+
+export async function updateProjectInSupabase(
+  id: number,
+  project: ProjectUpdate,
+) {
+  const { data, error } = await supabase
+    .from("portfolio-projects")
+    .update(project)
+    .eq("id", id)
+    .select()
+    .single();
+
+  return { data, error };
 }
 
 export async function updateProjectPositions(

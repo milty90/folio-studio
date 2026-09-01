@@ -5,7 +5,7 @@ import FileInput, { type FileInputHandler } from "../components/FileInput";
 interface FormSectionProps {
   onSave: () => void;
   onCancel: () => void;
-  onChange: (field: string, value: string) => void;
+  onChange: (field: string, value: string | string[]) => void;
   position: string;
   onFileChange: (file: File | null) => void;
   isUploading: boolean;

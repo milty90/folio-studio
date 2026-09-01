@@ -3,19 +3,11 @@ import ProjectsSection from "./ui/layout/ProjectsSection";
 import Header from "./ui/layout/Header";
 import { useEffect, useState, useRef } from "react";
 import type { FileInputHandler } from "./ui/components/FileInput";
-import { Toaster, toast } from "sonner";
-import { getSession, signOut } from "./api/supabaseClient";
-import {
-  uploadFile,
-  addProjectToSupabase,
-  updateProjectPositions,
-  fetchProjectDataFromSupabase,
-  deleteFileFromBucket,
-  deleteProjectFromSupabase,
-} from "./api/fetchProjectData";
-import { signInWithEmail } from "./api/supabaseClient";
+import { Toaster } from "sonner";
+import { useAuth } from "./hooks/useAuth";
 import type { Database } from "../types/database.types";
-const { VITE_ADMIN_EMAIL } = import.meta.env;
+import { useProjectForm } from "./hooks/useProjectForm";
+import { useProjects } from "./hooks/useProjects";
 
 const dummyProjects: Database["public"]["Tables"]["portfolio-projects"]["Row"][] =
   [
@@ -55,290 +47,56 @@ const dummyProjects: Database["public"]["Tables"]["portfolio-projects"]["Row"][]
   ];
 
 function App() {
-  const [title, setTitle] = useState("");
-  const [titleError, setTitleError] = useState(false);
-  const [description, setDescription] = useState("");
-  const [descriptionError, setDescriptionError] = useState(false);
-  const [tags, setTags] = useState("");
-  const [tagsError, setTagsError] = useState(false);
-  const [githubRepo, setGithubRepo] = useState("");
-  const [githubRepoError, setGithubRepoError] = useState(false);
-  const [liveDemo, setLiveDemo] = useState("");
-  const [liveDemoError, setLiveDemoError] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [fileError, setFileError] = useState(false);
-  const [password, setPassword] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState<boolean | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<FileInputHandler>(null);
-  const [fileTitle, setFileTitle] = useState<string>();
+  const [editingProjectId, setEditingProjectId] = useState<number | null>(null);
 
-  const [projects, setProjects] = useState<
-    Database["public"]["Tables"]["portfolio-projects"]["Row"][]
-  >([]);
+  const { isLoggedIn, password, setPassword, login, logout } = useAuth();
+  const {
+    projects,
+    updateProject,
+    addProject,
+    deleteProject,
+    reorderProjects,
+    loadProjects,
+    clearProjects,
+  } = useProjects();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = await fetchProjectDataFromSupabase();
-      if (data) {
-        setProjects(data);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  useEffect(() => {
-    const checkSession = async () => {
-      const session = await getSession();
-      if (session.data?.session) {
-        setIsLoggedIn(true);
-      } else {
-        setIsLoggedIn(false);
-        toast.error("Bitte melden Sie sich an.");
-      }
-    };
-
-    checkSession();
-  }, []);
+  const {
+    formState,
+    error,
+    isUploading,
+    handleChange,
+    handleFileSelect,
+    save,
+    resetForm,
+    loadIntoForm,
+  } = useProjectForm(
+    addProject,
+    updateProject,
+    projects.length + 1,
+    editingProjectId,
+  );
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  const handleLogin = async () => {
-    if (!password) {
-      toast.error("Bitte geben Sie ein Passwort ein.");
-      return;
-    }
-
-    const { data, error } = await signInWithEmail(VITE_ADMIN_EMAIL, password);
-
-    if (error || !data.session) {
-      toast.error(
-        "Login fehlgeschlagen. Bitte überprüfen Sie Ihr Passwort und versuchen Sie es erneut.",
-      );
-      setIsLoggedIn(false);
-      return;
-    }
-
-    setIsLoggedIn(true);
-    toast.success("Login erfolgreich!");
-  };
-
-  const handleLogout = async () => {
-    await signOut();
-    setProjects([]);
-    setIsLoggedIn(false);
-  };
-
-  const handleSave = async () => {
-    let imageUrl: string = "";
-
-    if (
-      !title.trim() ||
-      !description.trim() ||
-      !tags.trim() ||
-      !githubRepo.trim() ||
-      !liveDemo.trim() ||
-      !file
-    ) {
-      if (!title.trim()) setTitleError(true);
-      if (!description.trim()) setDescriptionError(true);
-      if (!tags.trim()) setTagsError(true);
-      if (!githubRepo.trim()) setGithubRepoError(true);
-      if (!liveDemo.trim()) setLiveDemoError(true);
-      if (!file) setFileError(true);
-      toast.error("Bitte füllen Sie die erforderlichen Felder aus.");
-      return;
-    }
-
-    setIsUploading(true);
-
-    try {
-      const fileN = `${Date.now()}-${file.name.replace(/\s+/g, "_")}`;
-
-      if (file) {
-        const { error: uploadError, imageUrl: uploadedImageUrl } =
-          await uploadFile(file, fileN);
-
-        if (uploadError) {
-          toast.error("Datei-Upload fehlgeschlagen.");
-          return;
-        }
-
-        imageUrl = uploadedImageUrl;
-      }
-
-      const newProject = {
-        title,
-        desc: description,
-        tags: tags
-          .split(/[,\s]+/)
-          .map((tag) => tag.trim().replace(/^"|"$/g, ""))
-          .filter((tag) => tag.length > 0),
-        img: imageUrl || "",
-        position: projects.length + 1,
-        code: githubRepo,
-        live: liveDemo,
-        created_at: new Date().toISOString(),
-      };
-
-      const { data: insertedProject, error: projectError } =
-        await addProjectToSupabase(newProject);
-
-      if (projectError || !insertedProject) {
-        if (fileN) {
-          const { error: deleteError } = await deleteFileFromBucket(fileN);
-          if (deleteError) {
-            console.error(
-              "Projekt speichern fehlgeschlagen und Datei konnte nicht gelöscht werden:",
-              deleteError,
-            );
-          }
-        }
-
-        toast.error("Projekt speichern fehlgeschlagen.");
-        return;
-      }
-
-      const projectsWithSignedUrl = insertedProject.map((project) => ({
-        ...project,
-        img: imageUrl || project.img,
-      }));
-
-      setProjects((currentProjects) => [
-        ...currentProjects,
-        ...projectsWithSignedUrl,
-      ]);
-
-      setTitle("");
-      setDescription("");
-      setTags("");
-      setGithubRepo("");
-      setLiveDemo("");
-      setFile(null);
-      setFileTitle("");
-      fileInputRef.current?.reset();
-      setIsUploading(false);
-      toast.success("Projekt erfolgreich gespeichert!");
-    } finally {
-      setIsUploading(false);
+  const handleEdit = (id: number) => {
+    const project = projects.find((p) => p.id === id);
+    if (project) {
+      setEditingProjectId(id);
+      loadIntoForm(project);
     }
   };
+
   const handleCancel = () => {
-    setTitle("");
-    setTitleError(false);
-    setDescription("");
-    setDescriptionError(false);
-    setTags("");
-    setTagsError(false);
-    setGithubRepo("");
-    setGithubRepoError(false);
-    setLiveDemo("");
-    setLiveDemoError(false);
-    setFile(null);
-    setFileError(false);
-    setFileTitle("");
+    setEditingProjectId(null);
+    resetForm();
     fileInputRef.current?.reset();
   };
 
-  const handleChange = (field: string, value: string) => {
-    switch (field) {
-      case "title":
-        setTitle(value);
-        if (value.trim()) setTitleError(false);
-        break;
-      case "description":
-        setDescription(value);
-        if (value.trim()) setDescriptionError(false);
-        break;
-      case "tags":
-        setTags(value);
-        if (value.trim()) setTagsError(false);
-        break;
-      case "githubRepo":
-        setGithubRepo(value);
-        if (value.trim()) setGithubRepoError(false);
-        break;
-      case "liveDemo":
-        setLiveDemo(value);
-        if (value.trim()) setLiveDemoError(false);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handlePasswordChange = (value: string) => {
-    setPassword(value);
-  };
-
-  const handleFileSelect = (selectedFile: File | null) => {
-    setFile(selectedFile);
-    setFileError(false);
-    setFileTitle(selectedFile?.name ?? "");
-  };
-
-  const handleRefresh = async () => {
-    const data = await fetchProjectDataFromSupabase();
-    if (data) {
-      setProjects(data);
-    }
-  };
-
-  const handleEdit = (id: number) => {
-    projects.forEach((project) => {
-      console.log(
-        "Checking project:",
-        project.id,
-        project.title,
-        "against id:",
-        id,
-      );
-      if (project.id === id) {
-        setTitle(project.title || "");
-        setDescription(project.desc || "");
-        setTags((project.tags as string[])?.join(", ") || "");
-        setGithubRepo(project.code || "");
-        setLiveDemo(project.live || "");
-        setFileTitle(project.img || "");
-      }
-    });
-  };
-
-  const handleDelete = (id: number) => {
-    setProjects((currentProjects) =>
-      currentProjects.filter((project) => project.id !== id),
-    );
-    deleteProjectFromSupabase(id);
-    toast.success("Projekt erfolgreich gelöscht!");
-  };
-
-  const handleDragAndDrop = (draggedIndex: number, dragOverIndex: number) => {
-    setProjects((prev) => {
-      const sorted = [...prev].sort(
-        (a, b) => (a.position ?? 999) - (b.position ?? 999),
-      );
-      const [moved] = sorted.splice(draggedIndex, 1);
-      sorted.splice(dragOverIndex, 0, moved);
-
-      const withNewPositions = sorted.map((p, i) => ({ ...p, position: i }));
-
-      updateProjectPositions(
-        withNewPositions.map((p) => ({ id: p.id, position: p.position })),
-      ).then(({ error }) => {
-        if (error) {
-          toast.error("Reihenfolge konnte nicht gespeichert werden.");
-          console.error(error);
-        }
-      });
-      toast.success("Reihenfolge erfolgreich gespeichert!");
-
-      return withNewPositions;
-    });
-  };
+  const handleLogoutClick = () => logout(clearProjects);
 
   if (isLoggedIn === null) {
     return (
@@ -351,9 +109,9 @@ function App() {
   return (
     <>
       <Header
-        onChangePassword={handlePasswordChange}
-        onLogin={handleLogin}
-        onLogout={handleLogout}
+        onChangePassword={setPassword}
+        onLogin={login}
+        onLogout={handleLogoutClick}
         isLoggedIn={isLoggedIn}
         password={password}
       />
@@ -385,32 +143,32 @@ function App() {
           <FormSection
             isUploading={isUploading}
             inputRef={inputRef}
-            titleError={titleError}
-            descriptionError={descriptionError}
-            tagsError={tagsError}
-            githubRepoError={githubRepoError}
-            liveDemoError={liveDemoError}
-            fileError={fileError}
+            titleError={error.title}
+            descriptionError={error.description}
+            tagsError={error.tags}
+            githubRepoError={error.githubRepo}
+            liveDemoError={error.liveDemo}
+            fileError={error.fileName}
             position={projects.length + 1 + ""}
             ref={fileInputRef}
-            fileName={fileTitle || ""}
-            onSave={handleSave}
+            fileName={formState.fileName || ""}
+            onSave={save}
             onCancel={handleCancel}
             onChange={handleChange}
             onFileChange={handleFileSelect}
             isLoggedIn={isLoggedIn}
-            title={title}
-            description={description}
-            tags={tags}
-            githubRepo={githubRepo}
-            liveDemo={liveDemo}
+            title={formState.title}
+            description={formState.description}
+            tags={formState.tags}
+            githubRepo={formState.githubRepo}
+            liveDemo={formState.liveDemo}
           />
           <ProjectsSection
-            handleDragAndDrop={handleDragAndDrop}
-            handleEdit={(id) => handleEdit(id)}
-            handleDelete={(id) => handleDelete(id)}
+            handleDragAndDrop={reorderProjects}
+            handleEdit={handleEdit}
+            handleDelete={deleteProject}
             projects={isLoggedIn ? projects : dummyProjects}
-            onRefresh={handleRefresh}
+            onRefresh={loadProjects}
           />
         </div>
       </main>
