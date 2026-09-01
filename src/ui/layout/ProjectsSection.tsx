@@ -41,7 +41,7 @@ function ProjectsSection({
           onClick={onRefresh}
           className="flex flex-row items-center gap-2 cursor-pointer text-nowrap text-ink-soft tracking-wide mr-1 text-sm font-monospace"
         >
-          <span className={`tracking-wide  ${isLoading ? "animate-spin" : ""}`}>
+          <span className={`font-inter  ${isLoading ? "animate-spin " : ""}`}>
             ↻
           </span>
           refresh
