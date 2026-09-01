@@ -60,7 +60,7 @@ export function useProjects() {
   const reorderProjects = (draggedIndex: number, dragOverIndex: number) => {
     setProjects((prev) => {
       const sorted = [...prev].sort(
-        (a, b) => (a.position ?? 999) - (b.position ?? 999),
+        (a, b) => (a.position ?? prev.length) - (b.position ?? prev.length),
       );
       const [moved] = sorted.splice(draggedIndex, 1);
       sorted.splice(dragOverIndex, 0, moved);
