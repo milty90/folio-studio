@@ -2,6 +2,7 @@ import ColorButton from "./ColorButton";
 import { TagBudget } from "./TagBudget";
 
 interface ProjectCardProps {
+  id: number;
   handleEdit?: (id: number) => void;
   handleDelete?: (id: number) => void;
   position: number;
@@ -23,6 +24,7 @@ interface ProjectCardProps {
 export function ProjectCard({
   handleEdit,
   handleDelete,
+  id,
   position,
   title,
   tags,
@@ -66,8 +68,8 @@ export function ProjectCard({
           {title}
         </p>
         <div className="flex flex-row flex-wrap -ml-1 pt-1 gap-2">
-          {tags.map((tag) => (
-            <TagBudget key={tag} tag={tag} />
+          {tags.map((tag, index) => (
+            <TagBudget key={index} tag={tag} />
           ))}
         </div>
         <div className="text-ink-soft tracking-wide mr-1 gap-5 text-sm pb-3 pt-2 font-monospace flex flex-row items-center">
@@ -80,14 +82,14 @@ export function ProjectCard({
           border="border border-line"
           color="transparent"
           text="Bearbeiten"
-          onClick={handleEdit ? () => handleEdit(position) : undefined}
+          onClick={handleEdit ? () => handleEdit(id) : undefined}
           isActive={true}
         />
         <ColorButton
           border="border border-line"
           color="transparent"
           text="Löschen"
-          onClick={handleDelete ? () => handleDelete(position) : undefined}
+          onClick={handleDelete ? () => handleDelete(id) : undefined}
           isActive={true}
         />
       </div>

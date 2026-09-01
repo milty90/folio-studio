@@ -8,7 +8,6 @@ export async function signInWithEmail(email: string, password: string) {
   if (error) {
     console.error("Error logging in with email:", error);
   }
-  console.log("Login response:", data);
   return { data, error };
 }
 
@@ -17,7 +16,6 @@ export async function signOut() {
   if (error) {
     console.error("Error signing out:", error);
   }
-  console.log("Sign out response:", error);
   return { error };
 }
 
@@ -26,6 +24,5 @@ export async function getSession() {
   if (error) {
     console.error("Error getting session:", error);
   }
-  console.log("Session response:", data);
   return { data, error };
 }

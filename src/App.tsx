@@ -1,7 +1,7 @@
 import { FormSection } from "./ui/layout/FormSection";
 import ProjectsSection from "./ui/layout/ProjectsSection";
 import Header from "./ui/layout/Header";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import type { FileInputHandler } from "./ui/components/FileInput";
 import { Toaster, toast } from "sonner";
 import { useAuth } from "./hooks/useAuth";
@@ -83,46 +83,52 @@ function App() {
     inputRef.current?.focus();
   }, []);
 
-  const handleEdit = (id: number) => {
-    const project = projects.find((p) => p.id === id);
-    if (project) {
-      setEditingProjectId(id);
-      loadIntoForm(project);
-    }
-  };
+  const handleEdit = useCallback(
+    (id: number) => {
+      const project = projects.find((p) => p.id === id);
+      if (project) {
+        setEditingProjectId(id);
+        loadIntoForm(project);
+      }
+    },
+    [projects, loadIntoForm],
+  );
 
-  const handleDelete = (id: number) => {
-    toast.warning(
-      "Möchten Sie dieses Projekt wirklich löschen?",
+  const handleDelete = useCallback(
+    (id: number) => {
+      toast.warning(
+        "Möchten Sie dieses Projekt wirklich löschen?",
 
-      {
-        cancel: {
-          label: "Abbrechen",
+        {
+          cancel: {
+            label: "Abbrechen",
 
-          onClick: () => {
-            toast.dismiss();
+            onClick: () => {
+              toast.dismiss();
+            },
+          },
+          action: {
+            label: "Löschen",
+
+            onClick: () => {
+              deleteProject(id);
+            },
+          },
+          actionButtonStyle: {
+            background: "#3d5a8a",
+            color: "#ffffff",
+            border: "1px solid #3d5a8a",
+          },
+          cancelButtonStyle: {
+            background: "transparent",
+            color: "#fff",
+            border: "1px solid #334155",
           },
         },
-        action: {
-          label: "Löschen",
-
-          onClick: () => {
-            deleteProject(id);
-          },
-        },
-        actionButtonStyle: {
-          background: "#3d5a8a",
-          color: "#ffffff",
-          border: "1px solid #3d5a8a",
-        },
-        cancelButtonStyle: {
-          background: "transparent",
-          color: "#fff",
-          border: "1px solid #334155",
-        },
-      },
-    );
-  };
+      );
+    },
+    [deleteProject],
+  );
 
   const handleCancel = () => {
     setEditingProjectId(null);

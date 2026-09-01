@@ -1,6 +1,6 @@
 import { ProjectCard } from "../components/ProjectCard";
 import type { Database } from "../../../types/database.types";
-import { memo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 
 interface ProjectsSectionProps {
   projects: Database["public"]["Tables"]["portfolio-projects"]["Row"][];
@@ -22,11 +22,14 @@ function ProjectsSection({
   const [draggedPos, setDraggedPos] = useState<number | null>(null);
   const [dragOverPos, setDragOverPos] = useState<number | null>(null);
 
-  const sortedProjects = [...projects].sort(
-    (a, b) => (a.position ?? 999) - (b.position ?? 999),
+  const sortedProjects = useMemo(
+    () =>
+      [...projects].sort(
+        (a, b) =>
+          (a.position ?? projects.length) - (b.position ?? projects.length),
+      ),
+    [projects],
   );
-
-  console.log("sortedProjects", sortedProjects);
 
   return (
     <section className="flex flex-col pt-10 gap-3">
@@ -49,9 +52,9 @@ function ProjectsSection({
         <div
           className={`flex flex-col divide-y divide-line/60 justify-between items-center gap-7`}
         >
-          {/* <div className="flex flex-col gap-2"> */}
           {sortedProjects.map((project, index) => (
             <ProjectCard
+              id={project.id}
               handleEdit={handleEdit ? () => handleEdit(project.id) : undefined}
               handleDelete={
                 handleDelete ? () => handleDelete(project.id) : undefined

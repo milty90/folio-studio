@@ -34,7 +34,6 @@ const initialFormState: FormState = {
 
 const getFileNameFromUrl = (url: string) => {
   try {
-    console.log(url);
     return decodeURIComponent(url.split("/").pop()?.split("?token")[0] ?? "");
   } catch {
     return "";

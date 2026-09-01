@@ -8,8 +8,6 @@ export async function fetchProjectDataFromSupabase() {
   const response = await supabase.from("portfolio-projects").select("*");
   if (response.error) {
     console.error("Error fetching project data:", response.error);
-  } else {
-    console.log("Project data:", response.data);
   }
   return response.data;
 }
@@ -24,10 +22,7 @@ export async function addProjectToSupabase(
 
   if (response.error) {
     console.error("Error adding project data:", response.error);
-  } else {
-    console.log("Project added:", response.data);
   }
-
   return response;
 }
 
@@ -105,7 +100,6 @@ export async function deleteProjectFromSupabase(projectId: number) {
   if (error) {
     console.error("Error deleting project:", error);
   }
-  console.log(`Project with ID ${projectId} deleted successfully.`);
   return { error };
 }
 
